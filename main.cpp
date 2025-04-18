@@ -2,6 +2,37 @@
 
 const char kWindowTitle[] = "LC1C_10_ソネ_タイセイ_タイトル";
 
+/*********************************************************
+*構造体
+*********************************************************/
+
+// 4x4の行列
+struct Matrix4x4 {
+	float m[4][4];
+};
+
+// vector3
+struct Vector3 {
+	float x;
+	float y;
+	float z;
+};
+
+static const int kRowHeight = 20;
+static const int kColumnWidth = 44;
+
+/*********************************************************
+*関数
+*********************************************************/
+
+/*行列の描画
+*********************************************************/
+
+void MatrixScreenPrintf(int x, int y, const Matrix4x4 &matrix);
+
+void VectorScreenPrintf(int x, int y, Vector3 vector);
+
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -50,3 +81,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Finalize();
 	return 0;
 }
+
+/*行列の描画
+*********************************************************/
+
+void MatrixScreenPrintf(int x, int y, const Matrix4x4 &matrix) {
+	for(int row = 0; row < 4; ++row) {
+		for(int column = 0; column < 4; ++column) {
+			Novice::ScreenPrintf(
+				x + column * kColumnWidth,
+				y + row * kRowHeight,
+				"%7.02f", matrix.m[row][column]);
+		}
+	}
+}
+
+void VectorScreenPrintf(int x, int y, Vector3 vector) {
+	Novice::ScreenPrintf(x, y, "%.02f", vector.x);
+	Novice::ScreenPrintf(x + kColumnWidth, y, "%.02f", vector.y);
+	Novice::ScreenPrintf(x + kColumnWidth * 2, y, "%.02f", vector.z);
+}
+
