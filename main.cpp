@@ -174,19 +174,6 @@ Matrix4x4 MakeTranslateMatrix(const Vector3 &translate) {
 	return result;
 }
 
-Matrix4x4 MakeRoteZMatrix(float radian) {
-	Matrix4x4 result{};
-
-	result = {
-		std::cos(radian),std::sin(radian),0.0f,0.0f,
-		-std::sin(radian),std::cos(radian),0.0f,0.0f,
-		0.0f,0.0f,1.0f,0.0f,
-		0.0f,0.0f,0.0f,1.0f
-      };
-
-	return result;
-}
-
 // 拡大縮小行列
 Matrix4x4 MakeScaleMatrix(const Vector3 &scale) {
 	Matrix4x4 result = {};
