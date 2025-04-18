@@ -1,5 +1,8 @@
 #include <Novice.h>
-#include <assert.h>
+#include<cmath>
+
+#include"assert.h"
+
 
 const char kWindowTitle[] = "LC1C_10_ソネ_タイセイ_タイトル";
 
@@ -33,6 +36,20 @@ void MatrixScreenPrintf(int x, int y, const Matrix4x4 &matrix);
 
 void VectorScreenPrintf(int x, int y, Vector3 vector);
 
+/*3次元回転行列
+*********************************************************/
+
+// X軸の回転行列
+Matrix4x4 MakeRoteXMatrix(float radian);
+
+// Y軸の回転行列
+Matrix4x4 MakeRoteYMatrix(float radian);
+
+// Z軸の回転行列
+Matrix4x4 MakeRoteZMatrix(float radian);
+
+Matrix4x4 Multiply(Matrix4x4 matrix1, Matrix4x4 matrix2);
+
 /*行列の計算
 *********************************************************/
 
@@ -55,19 +72,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
-	Vector3 translate{ 4.1f,2.6f,0.8f };
-	Vector3 scale{ 1.5f,5.2f,7.3f };
-	Matrix4x4 translateMatrix = MakeTranslateMatrix(translate);
-	Matrix4x4 scaleMatrix = MakeScaleMatrix(scale);
-	Vector3 point{ 2.3f,3.8f,1.4f };
-	Matrix4x4 transformMatrix{
-		1.0f,2.0f,3.0f,4.0f,
-		3.0f,1.0f,1.0f,2.0f,
-		1.0f,4.0f,2.0f,3.0f,
-		2.0f,2.0f,1.0f,3.0f,
-	};
-	Vector3 transformed = Transform(point, transformMatrix);
-
 	// ウィンドウの×ボタンが押されるまでループ
 	while(Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -88,9 +92,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		VectorScreenPrintf(0, 0, transformed);
-		MatrixScreenPrintf(0, kRowHeight * 5, translateMatrix);
-		MatrixScreenPrintf(0, kRowHeight*10, scaleMatrix);
+    
 		///
 		/// ↑描画処理ここまで
 		///
@@ -129,6 +131,32 @@ void VectorScreenPrintf(int x, int y, Vector3 vector) {
 	Novice::ScreenPrintf(x + kColumnWidth * 2, y, "%.02f", vector.z);
 }
 
+Matrix4x4 MakeRoteXMatrix(float radian) {
+	Matrix4x4 result{};
+
+	result = {
+		1.0f,0.0f,0.0f,0.0f,
+		0.0f,std::cos(radian),std::sin(radian),0.0f,
+		0.0f,-std::sin(radian),std::cos(radian),0.0f,
+		0.0f,0.0f,0.0f,1.0f
+	};
+
+	return result;
+}
+
+Matrix4x4 MakeRoteYMatrix(float radian) {
+	Matrix4x4 result{};
+
+	result = {
+		std::cos(radian),0.0f,-std::sin(radian),0.0f,
+		0.0f,1.0f,0.0f,0.0f,
+		std::sin(radian),0.0f,std::cos(radian),0.0f,
+		0.0f,0.0f,0.0f,1.0f
+      };
+
+	return result;
+}
+
 /*行列の計算
 *********************************************************/
 
@@ -146,6 +174,19 @@ Matrix4x4 MakeTranslateMatrix(const Vector3 &translate) {
 	return result;
 }
 
+Matrix4x4 MakeRoteZMatrix(float radian) {
+	Matrix4x4 result{};
+
+	result = {
+		std::cos(radian),std::sin(radian),0.0f,0.0f,
+		-std::sin(radian),std::cos(radian),0.0f,0.0f,
+		0.0f,0.0f,1.0f,0.0f,
+		0.0f,0.0f,0.0f,1.0f
+      };
+
+	return result;
+}
+
 // 拡大縮小行列
 Matrix4x4 MakeScaleMatrix(const Vector3 &scale) {
 	Matrix4x4 result = {};
@@ -156,6 +197,20 @@ Matrix4x4 MakeScaleMatrix(const Vector3 &scale) {
 		0.0f,0.0f,scale.z,0.0f,
 		0.0f,0.0f,0.0f,1.0f,
 	};
+
+	return result;
+}
+
+Matrix4x4 Multiply(Matrix4x4 matrix1, Matrix4x4 matrix2) {
+	Matrix4x4 result = {};
+
+	for(int i = 0; i < 4; i++) {
+		for(int j = 0; j < 4; j++) {
+			for(int k = 0; k < 4; k++) {
+				result.m[i][j] += matrix1.m[i][k] * matrix2.m[k][j];
+			}
+		}
+	}
 
 	return result;
 }
