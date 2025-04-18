@@ -129,7 +129,6 @@ void VectorScreenPrintf(int x, int y, Vector3 vector) {
 	Novice::ScreenPrintf(x + kColumnWidth * 2, y, "%.02f", vector.z);
 }
 
-
 /*行列の計算
 *********************************************************/
 
