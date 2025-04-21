@@ -244,18 +244,21 @@ Vector3 Transform(const Vector3 &vector, const Matrix4x4 &matrix) {
 Matrix4x4 MakeAffineMatrix(const Vector3 &scale, const Vector3 &rotate, const Vector3 &translate) {
 	Matrix4x4 result{};
 
+	// 回転行列
+	Matrix4x4 rotZ = MakeRoteZMatrix(rotate.z);
 	Matrix4x4 rotX = MakeRoteXMatrix(rotate.x);
 	Matrix4x4 rotY = MakeRoteYMatrix(rotate.y);
-	Matrix4x4 rotZ = MakeRoteZMatrix(rotate.z);
 	
-	Matrix4x4 rotateMatrix=
+	// 回転行列の合成
+	Matrix4x4 rotateMatrix = Multiply(Multiply(rotX, rotY), rotZ);
 
-	result = {
-		scale.x * rotate.x,scale.x * rotate.x,scale.x * rotate.x,0.0f,
-		scale.y * rotate.y,scale.y * rotate.y,scale.y * rotate.y,0.0f,
-		scale.z * rotate.z,scale.z * rotate.z,scale.z * rotate.z,0.0f,
-		translate.x,translate.y,translate.z,1.0f
-	};
+	// 拡大縮小
+	Matrix4x4 scaleMatrix = MakeScaleMatrix(scale);
+
+	// 平行移動
+	Matrix4x4 translateMatrix = MakeTranslateMatrix(translate);
+
+	result = Multiply(Multiply(scaleMatrix, rotateMatrix), translateMatrix);
 
 	return result;
 
