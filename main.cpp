@@ -36,7 +36,7 @@ static const int kWindowHeight = 720;
 
 void MatrixScreenPrintf(int x, int y, const Matrix4x4 &matrix, const char *name);
 
-void VectorScreenPrintf(int x, int y, Vector3 vector,const char *name);
+void VectorScreenPrintf(int x, int y, Vector3 vector, const char *name);
 
 
 /*行列の計算
@@ -101,25 +101,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 rotate = {};
 	Vector3 translate = {};
-	Vector3 cameraPosition = {};
+	Vector3 cameraPosition = { 0.0f,0.0f,0.0f };
 
-	// 各行列の計算
-	Matrix4x4 worldMatrix = 
-		MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
-	Matrix4x4 cameraMatrix =
-		MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, cameraPosition);
-	Matrix4x4 viewMatrix = 
-		Inverse(cameraMatrix);
-	Matrix4x4 projectionMatrix =
-		MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-	Matrix4x4 worldViewProjectionMatrix = 
-		Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-	Matrix4x4 viewportMatrix = 
-		MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
-	Vector3 screenVertices[3];
-	for(uint32_t i = 0; i < 3; ++i) {
-		Vector3 ndcVertex=Transform()
-	}
+	const Vector3 kLocalVertices[3] = {
+		{-0.5f,-0.5f,5.0f},
+		{0.0f,0.5f,5.0f},
+		{0.5f,-0.5f,5.0f},
+	};
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while(Novice::ProcessMessage() == 0) {
@@ -133,6 +121,68 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+		// WSで前後に、ADで左右に動かす
+
+		if(keys[DIK_W]) {
+			translate.z -= 0.05f;
+		}
+
+		if(keys[DIK_S]) {
+			translate.z += 0.05f;
+		}
+
+		if(keys[DIK_D]) {
+			translate.x += 0.05f;
+		}
+
+		if(keys[DIK_A]) {
+			translate.x -= 0.05f;
+		}
+
+		if(translate.z <= -4.0f) {
+			translate.z = -4.0f;
+		}
+
+
+		// 三角形をY軸を中心に回転させる
+		rotate.y += 0.05f;
+
+		// 三角形の中心を計算
+		Vector3 center = {
+			(kLocalVertices[0].x + kLocalVertices[1].x + kLocalVertices[2].x) / 3.0f,
+			(kLocalVertices[0].y + kLocalVertices[1].y + kLocalVertices[2].y) / 3.0f,
+			(kLocalVertices[0].z + kLocalVertices[1].z + kLocalVertices[2].z) / 3.0f,
+		};
+
+		// 各行列の計算
+		Matrix4x4 moveToOrigin = MakeTranslateMatrix({ -center.x, -center.y, -center.z });
+		Matrix4x4 rotation = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, rotate, { 0.0f, 0.0f, 0.0f });
+		Matrix4x4 moveBack = MakeTranslateMatrix(center);
+		Matrix4x4 moveTranslate = MakeTranslateMatrix(translate);
+
+		// worldMatrixを中心回転にあわせる
+		Matrix4x4 worldMatrix = Multiply(Multiply(moveToOrigin, rotation), moveBack);
+		worldMatrix = Multiply(worldMatrix, moveTranslate);
+
+		// 各行列の計算
+		Matrix4x4 cameraMatrix =
+			MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, cameraPosition);
+		Matrix4x4 viewMatrix =
+			Inverse(cameraMatrix);
+		Matrix4x4 projectionMatrix =
+			MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+		Matrix4x4 worldViewProjectionMatrix =
+			Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		Matrix4x4 viewportMatrix =
+			MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+		Vector3 screenVertices[3];
+		for(uint32_t i = 0; i < 3; ++i) {
+			// NDCまで変換。Transformを使うと同時座標系->デカルト座標系の処理が行われ、結果的にZDivideが行われる
+			Vector3 ndcVertex =
+				Transform(kLocalVertices[i], worldViewProjectionMatrix);
+			// Viewport変換を行ってScreen空間へ
+			screenVertices[i] = Transform(ndcVertex, viewportMatrix);
+		}
 
 		///
 		/// ↑更新処理ここまで
@@ -142,8 +192,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
+		// クロス積の計算結果を出力する
 		VectorScreenPrintf(0, 0, cross, "Cross");
-		
+
+		// 三角形を描画する
+		Novice::DrawTriangle(
+			static_cast <int>(screenVertices[0].x),
+			static_cast <int>(screenVertices[0].y),
+			static_cast <int>(screenVertices[1].x),
+			static_cast <int>(screenVertices[1].y),
+			static_cast <int>(screenVertices[2].x),
+			static_cast <int>(screenVertices[2].y),
+			RED, kFillModeSolid
+		);
+
 		///
 		/// ↑描画処理ここまで
 		///
