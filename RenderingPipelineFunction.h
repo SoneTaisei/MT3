@@ -1,0 +1,66 @@
+﻿#pragma once
+#include "Struct.h"
+#include<cstdint>
+
+/*行列の描画
+*********************************************************/
+
+void MatrixScreenPrintf(int x, int y, const Matrix4x4 &matrix, const char *name);
+
+void VectorScreenPrintf(int x, int y, Vector3 vector, const char *name);
+
+
+/*行列の計算
+*********************************************************/
+
+Vector3 Cross(const Vector3 &v1, const Vector3 &v2);
+
+// 1.透視投影行列
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
+
+// 2.正射影行列
+Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
+
+// 3.ビューポート変換行列
+Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
+
+/*3次元回転行列
+*********************************************************/
+
+// X軸の回転行列
+Matrix4x4 MakeRoteXMatrix(float radian);
+
+// Y軸の回転行列
+Matrix4x4 MakeRoteYMatrix(float radian);
+
+// Z軸の回転行列
+Matrix4x4 MakeRoteZMatrix(float radian);
+
+Matrix4x4 Multiply(Matrix4x4 matrix1, Matrix4x4 matrix2);
+
+/*行列の計算
+*********************************************************/
+
+// 平行移動行列
+Matrix4x4 MakeTranslateMatrix(const Vector3 &translate);
+
+// 拡大縮小行列
+Matrix4x4 MakeScaleMatrix(const Vector3 &scale);
+
+// 座標変換
+Vector3 Transform(const Vector3 &vector, const Matrix4x4 &matrix);
+
+// アフィン変換
+Matrix4x4 MakeAffineMatrix(const Vector3 &scale, const Vector3 &rotate, const Vector3 &translate);
+
+// 逆行列
+Matrix4x4 Inverse(const Matrix4x4 &m);
+
+/*描画
+*********************************************************/
+
+// 球
+void DrawSphere(const Sphere &sphere, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
+
+// グリッド
+void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix);
