@@ -329,14 +329,10 @@ void DrawSphere(const Sphere &sphere, const Matrix4x4 &viewProjectionMatrix, con
 			c.y = sphere.center.y + std::sin(lat) * sphere.radius;
 			c.z = sphere.center.z + std::cos(lat) * std::sin(lon + kLonEvery) * sphere.radius;
 
-			// 座標変換をする
-			Vector3 localVertexA = { a.x,a.y,a.z };
-			Vector3 localVertexB = { b.x,b.y,b.z };
-			Vector3 localVertexC = { c.x,c.y,c.z };
 
-			Vector3 clipPosA = Transform(localVertexA, viewProjectionMatrix);
-			Vector3 clipPosB = Transform(localVertexB, viewProjectionMatrix);
-			Vector3 clipPosC = Transform(localVertexC, viewProjectionMatrix);
+			Vector3 clipPosA = Transform(a, viewProjectionMatrix);
+			Vector3 clipPosB = Transform(b, viewProjectionMatrix);
+			Vector3 clipPosC = Transform(c, viewProjectionMatrix);
 
 			Vector2 ndcPosA = {
 				clipPosA.x / clipPosA.z,
@@ -370,26 +366,18 @@ void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMa
 	const float kGridHalfWidth = 2.0f;
 	const uint32_t kSubdivision = 10;
 	const float kGridEvery = (kGridHalfWidth * 2.0f) / float(kSubdivision);
+
 	// 奥から手前への線を順々に引いていく
 	for(uint32_t xIndex = 0; xIndex <= kSubdivision; ++xIndex) {
-		Vector3 startPos = { float(xIndex),0.0f,-kGridEvery };
-		Vector3 endPos = { float(xIndex),0.0f,kGridEvery };
+		float lineX = kGridEvery * xIndex - kGridHalfWidth;
+		Vector3 startPos = { lineX,0.0f,-kGridHalfWidth };
+		Vector3 endPos = { lineX,0.0f,kGridHalfWidth };
 
-		Vector3 clipPosA = Transform(startPos, viewProjectionMatrix);
-		Vector3 clipPosB = Transform(endPos, viewProjectionMatrix);
+		Vector3 clipStartPos = Transform(startPos, viewProjectionMatrix);
+		Vector3 clipEndPosB = Transform(endPos, viewProjectionMatrix);
 
-		Vector2 ndcStartPos = {
-			clipPosA.x,
-			clipPosA.y
-		};
-
-		Vector2 ndcEndPos = {
-			clipPosB.x,
-			clipPosB.y
-		};
-
-		Vector3 screenStartPos = Transform({ ndcStartPos.x,ndcStartPos.y,1.0f }, viewportMatrix);
-		Vector3 screenEndPos = Transform({ ndcEndPos.x,ndcEndPos.y,1.0f }, viewportMatrix);
+		Vector3 screenStartPos = Transform(clipStartPos, viewportMatrix);
+		Vector3 screenEndPos = Transform(clipEndPosB, viewportMatrix);
 
 		Novice::DrawLine(
 			int(screenStartPos.x), int(screenStartPos.y),
@@ -399,24 +387,15 @@ void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMa
 	}
 
 	for(uint32_t zIndex = 0; zIndex <= kSubdivision; ++zIndex) {
-		Vector3 startPos = { -kGridEvery,0.0f,float(zIndex) };
-		Vector3 endPos = { kGridEvery,0.0f,float(zIndex) };
+		float lineZ = kGridEvery * zIndex - kGridHalfWidth;
+		Vector3 startPos = { -kGridHalfWidth,0.0f,lineZ };
+		Vector3 endPos = { kGridHalfWidth,0.0f,lineZ };
 
 		Vector3 clipStartPos = Transform(startPos, viewProjectionMatrix);
 		Vector3 clipEndPos = Transform(endPos, viewProjectionMatrix);
 
-		Vector2 ndcStartPos = {
-			clipStartPos.x,
-			clipStartPos.y
-		};
-
-		Vector2 ndcEndPos = {
-			clipEndPos.x,
-			clipEndPos.y
-		};
-
-		Vector3 screenStartPos = Transform({ ndcStartPos.x,ndcStartPos.y,1.0f }, viewportMatrix);
-		Vector3 screenEndPos = Transform({ ndcEndPos.x,ndcEndPos.y,1.0f }, viewportMatrix);
+		Vector3 screenStartPos = Transform(clipStartPos, viewportMatrix);
+		Vector3 screenEndPos = Transform(clipEndPos, viewportMatrix);
 
 		Novice::DrawLine(
 			int(screenStartPos.x), int(screenStartPos.y),
