@@ -13,7 +13,20 @@ void VectorScreenPrintf(int x, int y, Vector3 vector, const char *name);
 /*行列の計算
 *********************************************************/
 
+// クロス積
 Vector3 Cross(const Vector3 &v1, const Vector3 &v2);
+
+/* 加法*/
+Matrix4x4 Add(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2);
+
+/* 減法*/
+Matrix4x4 Subtract(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2);
+
+/* 転置行列*/
+Matrix4x4 Transpose(const Matrix4x4 &m);
+
+/* 単位行列の作成*/
+Matrix4x4 MakeIdentity4x4();
 
 // 1.透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
@@ -64,3 +77,7 @@ void DrawSphere(const Sphere &sphere, const Matrix4x4 &viewProjectionMatrix, con
 
 // グリッド
 void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix);
+
+Vector3 Project(const Vector3 &v1, const Vector3 &v2);
+
+Vector3 ClosestPoint(const Vector3 &point, const Segment &segment);
