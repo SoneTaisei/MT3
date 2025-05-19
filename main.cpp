@@ -28,9 +28,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Segment segment = { {-2.0f,-1.0f,0.0f},{3.0f,2.0f,2.0f} };
 	Vector3 point = { -1.5f,0.6f,0.6f };
 
+	// 点から始点へのベクトル
+	Vector3 diffToPoint = {
+	point.x - segment.origin.x,
+	point.y - segment.origin.y,
+	point.z - segment.origin.z
+	};
+
 	Vector3 project =
-		Project({ point.x - segment.origin.x,point.y - segment.origin.y,point.z - segment.origin.z }, segment.diff);
-	Vector3 closestPoint = ClosestPoint(project, segment);
+		Project(diffToPoint, segment.diff);
+	Vector3 closestPoint = ClosestPoint(point, segment);
 
 	Sphere pointSphere = { point,0.01f };
 	Sphere clossPointSphere = { closestPoint,0.01f };
