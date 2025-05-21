@@ -21,6 +21,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
+	// カメラ座標
 	Vector3 cameraTranslate = { 0.0f,1.9f,-6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
@@ -29,7 +30,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sphere1.color = WHITE;
 	sphere2.color = WHITE;
 
-	
+	// 点から始点へのベクトル
+	Vector3 diffToPoint = {
+	point.x - segment.origin.x,
+	point.y - segment.origin.y,
+	point.z - segment.origin.z
+	};
+
+	Vector3 project =
+		Project(diffToPoint, segment.diff);
+	Vector3 closestPoint = ClosestPoint(point, segment);
+
+	Sphere pointSphere = { point,0.01f };
+	Sphere clossPointSphere = { closestPoint,0.01f };
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while(Novice::ProcessMessage() == 0) {
@@ -75,6 +88,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::End();
 #endif // _DEBUG
 
+		ImGui::InputFloat3("Point", &point.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("Segment origin", &segment.origin.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("Segment diff", &segment.diff.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 		///
 		/// ↑更新処理ここまで
@@ -91,6 +108,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
+		DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
+		DrawSphere(clossPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
+
+		Vector3 start =
+			Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 end =
+			Transform(
+				Transform({ segment.origin.x + segment.diff.x,segment.origin.y + segment.diff.y,segment.origin.z + segment.diff.z },viewProjectionMatrix),
+				viewportMatrix);
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+
+		
 		///
 		/// ↑描画処理ここまで
 		///

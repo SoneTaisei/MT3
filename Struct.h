@@ -8,6 +8,11 @@ struct Matrix4x4 {
 	float m[4][4];
 };
 
+// 2x2の行列
+struct Matrix2x2 {
+	float m[2][2];
+};
+
 struct Vector4 {
 	float x;
 	float y;
@@ -40,6 +45,21 @@ struct Sphere {
 	Vector3 center;
 	float radius;
 	unsigned int color;
+};
+
+struct Line {
+	Vector3 origin;
+	Vector3 diff;
+};
+
+struct Ray {
+	Vector3 origin;
+	Vector3 diff;
+};
+
+struct Segment {
+	Vector3 origin;
+	Vector3 diff;
 };
 
 static const int kRowHeight = 20;

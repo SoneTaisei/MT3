@@ -29,8 +29,93 @@ void VectorScreenPrintf(int x, int y, Vector3 vector, const char *name) {
 /*行列の計算
 *********************************************************/
 
+// クロス積
 Vector3 Cross(const Vector3 &v1, const Vector3 &v2) {
 	return Vector3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+}
+
+/* 加法*/
+Matrix4x4 Add(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2) {
+	Matrix4x4 result;
+
+	result.m[0][0] = matrix1.m[0][0] + matrix2.m[0][0];
+	result.m[0][1] = matrix1.m[0][1] + matrix2.m[0][1];
+	result.m[0][2] = matrix1.m[0][2] + matrix2.m[0][2];
+	result.m[0][3] = matrix1.m[0][3] + matrix2.m[0][3];
+	result.m[1][0] = matrix1.m[1][0] + matrix2.m[1][0];
+	result.m[1][1] = matrix1.m[1][1] + matrix2.m[1][1];
+	result.m[1][2] = matrix1.m[1][2] + matrix2.m[1][2];
+	result.m[1][3] = matrix1.m[1][3] + matrix2.m[1][3];
+	result.m[2][0] = matrix1.m[2][0] + matrix2.m[2][0];
+	result.m[2][1] = matrix1.m[2][1] + matrix2.m[2][1];
+	result.m[2][2] = matrix1.m[2][2] + matrix2.m[2][2];
+	result.m[2][3] = matrix1.m[2][3] + matrix2.m[2][3];
+	result.m[3][0] = matrix1.m[3][0] + matrix2.m[3][0];
+	result.m[3][1] = matrix1.m[3][1] + matrix2.m[3][1];
+	result.m[3][2] = matrix1.m[3][2] + matrix2.m[3][2];
+	result.m[3][3] = matrix1.m[3][3] + matrix2.m[3][3];
+
+	return result;
+}
+
+/* 減法*/
+Matrix4x4 Subtract(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2) {
+	Matrix4x4 result;
+
+	result.m[0][0] = matrix1.m[0][0] - matrix2.m[0][0];
+	result.m[0][1] = matrix1.m[0][1] - matrix2.m[0][1];
+	result.m[0][2] = matrix1.m[0][2] - matrix2.m[0][2];
+	result.m[0][3] = matrix1.m[0][3] - matrix2.m[0][3];
+	result.m[1][0] = matrix1.m[1][0] - matrix2.m[1][0];
+	result.m[1][1] = matrix1.m[1][1] - matrix2.m[1][1];
+	result.m[1][2] = matrix1.m[1][2] - matrix2.m[1][2];
+	result.m[1][3] = matrix1.m[1][3] - matrix2.m[1][3];
+	result.m[2][0] = matrix1.m[2][0] - matrix2.m[2][0];
+	result.m[2][1] = matrix1.m[2][1] - matrix2.m[2][1];
+	result.m[2][2] = matrix1.m[2][2] - matrix2.m[2][2];
+	result.m[2][3] = matrix1.m[2][3] - matrix2.m[2][3];
+	result.m[3][0] = matrix1.m[3][0] - matrix2.m[3][0];
+	result.m[3][1] = matrix1.m[3][1] - matrix2.m[3][1];
+	result.m[3][2] = matrix1.m[3][2] - matrix2.m[3][2];
+	result.m[3][3] = matrix1.m[3][3] - matrix2.m[3][3];
+
+	return result;
+}
+
+/* 転置行列*/
+Matrix4x4 Transpose(const Matrix4x4 &matrix) {
+	Matrix4x4 result;
+
+	result.m[0][0] = matrix.m[0][0];
+	result.m[0][1] = matrix.m[1][0];
+	result.m[0][2] = matrix.m[2][0];
+	result.m[0][3] = matrix.m[3][0];
+	result.m[1][0] = matrix.m[0][1];
+	result.m[1][1] = matrix.m[1][1];
+	result.m[1][2] = matrix.m[2][1];
+	result.m[1][3] = matrix.m[3][1];
+	result.m[2][0] = matrix.m[0][2];
+	result.m[2][1] = matrix.m[1][2];
+	result.m[2][2] = matrix.m[2][2];
+	result.m[2][3] = matrix.m[3][2];
+	result.m[3][0] = matrix.m[0][3];
+	result.m[3][1] = matrix.m[1][3];
+	result.m[3][2] = matrix.m[2][3];
+	result.m[3][3] = matrix.m[3][3];
+
+	return result;
+}
+
+/* 単位行列の作成*/
+Matrix4x4 MakeIdentity4x4() {
+	Matrix4x4 result;
+
+	result.m[0][0] = 1.0f;
+	result.m[1][1] = 1.0f;
+	result.m[2][2] = 1.0f;
+	result.m[3][3] = 1.0f;
+
+	return result;
 }
 
 // 1.透視投影行列
@@ -420,4 +505,28 @@ bool IscollideSphere(const Sphere &s1, const Sphere &s2) {
 		return true;
 	}
 	return false;
+// 正射影ベクトル
+Vector3 Project(const Vector3 &v1, const Vector3 &v2) {
+	Vector3 result;
+	
+	float dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	float lenSq = v2.x * v2.x + v2.y * v2.y + v2.z * v2.z;
+	float scalar = dot / lenSq;
+
+	result = { scalar * v2.x, scalar * v2.y, scalar * v2.z };
+	
+	return result;
+}
+
+// 最近接点
+Vector3 ClosestPoint(const Vector3 &point, const Segment &segment) {
+	Vector3 result;
+
+	Vector3 vecToPoint = { point.x - segment.origin.x,point.y - segment.origin.y,point.z - segment.origin.z };
+	// 正射影ベクトルをする
+	Vector3 proj = Project(vecToPoint, segment.diff);
+	result = { segment.origin.x + proj.x,segment.origin.y + proj.y,segment.origin.z + proj.z };
+
+
+	return result;
 }
