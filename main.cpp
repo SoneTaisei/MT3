@@ -25,8 +25,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = { 0.0f,1.9f,-6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-	Segment segment = { {-2.0f,-1.0f,0.0f},{3.0f,2.0f,2.0f} };
-	Vector3 point = { -1.5f,0.6f,0.6f };
+	Sphere sphere1 = { 0.0f,1.0f,0.0f,0.5f };
+	Sphere sphere2 = { 1.0f,0.0f,0.0f,0.5f };
+	sphere1.color = WHITE;
+	sphere2.color = WHITE;
 
 	// 点から始点へのベクトル
 	Vector3 diffToPoint = {
@@ -54,7 +56,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
-
+		
+		if(IscollideSphere(sphere1, sphere2)) {
+			sphere1.color = RED;
+			sphere2.color = RED;
+		} else {
+			sphere1.color = WHITE;
+			sphere2.color = WHITE;
+		}
+		
 		// 各行列の計算
 		Matrix4x4 cameraMatrix =
 			MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
@@ -67,6 +77,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewportMatrix =
 			MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
+#ifdef _DEBUG
+		ImGui::Begin("Window");
+		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
+		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
+		ImGui::DragFloat3("SphereCenter1", &sphere1.center.x, 0.01f);
+		ImGui::DragFloat("SphereRadius1", &sphere1.radius, 0.01f);
+		ImGui::DragFloat3("SphereCenter2", &sphere2.center.x, 0.01f);
+		ImGui::DragFloat("SphereRadius2", &sphere2.radius, 0.01f);
+		ImGui::End();
+#endif // _DEBUG
 
 		ImGui::InputFloat3("Point", &point.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		ImGui::InputFloat3("Segment origin", &segment.origin.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
@@ -81,6 +101,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 		
+		//// 球体を描画する
+		DrawSphere(sphere1, viewProjectionMatrix, viewportMatrix, sphere1.color);
+		DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, sphere2.color);
+
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
