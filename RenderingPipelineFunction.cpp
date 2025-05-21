@@ -1,10 +1,6 @@
 ﻿#include"RenderingPipelineFunction.h"
 #include"Novice.h"
 
-#define _USE_MATH_DEFINES
-#include<cmath>
-
-#include"assert.h"
 
 /*行列の描画
 *********************************************************/
@@ -404,4 +400,24 @@ void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMa
 		);
 	}
 
+}
+
+/*中見出し
+*********************************************************/
+
+// 長さ
+float Length(const Vector3 &vector) {
+	return std::sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+}
+
+// 球と球
+bool IscollideSphere(const Sphere &s1, const Sphere &s2) {
+	// 2つの球の中心の距離を求める
+	float distance = Length(s2.center - s1.center);
+
+	// 半径の合計よりも短ければ衝突
+	if(distance < s1.radius + s2.radius) {
+		return true;
+	}
+	return false;
 }

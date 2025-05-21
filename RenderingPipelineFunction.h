@@ -64,3 +64,9 @@ void DrawSphere(const Sphere &sphere, const Matrix4x4 &viewProjectionMatrix, con
 
 // グリッド
 void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix);
+
+// 長さ
+float Length(const Vector3 &vector);
+
+// 球と球
+bool IscollideSphere(const Sphere &s1, const Sphere &s2);
