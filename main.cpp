@@ -25,24 +25,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = { 0.0f,1.9f,-6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-	Sphere sphere1 = { 0.0f,1.0f,0.0f,0.5f };
-	Sphere sphere2 = { 1.0f,0.0f,0.0f,0.5f };
-	sphere1.color = WHITE;
-	sphere2.color = WHITE;
+	Sphere sphere = { {0.0f,1.0f,0.0f }, 1.0f };
+	sphere.color = WHITE;
 
-	// 点から始点へのベクトル
-	Vector3 diffToPoint = {
-	point.x - segment.origin.x,
-	point.y - segment.origin.y,
-	point.z - segment.origin.z
-	};
+	Plane plane = { Normalize({0.0f,1.2f,0.0f}),-1.0f };
 
-	Vector3 project =
-		Project(diffToPoint, segment.diff);
-	Vector3 closestPoint = ClosestPoint(point, segment);
-
-	Sphere pointSphere = { point,0.01f };
-	Sphere clossPointSphere = { closestPoint,0.01f };
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while(Novice::ProcessMessage() == 0) {
@@ -56,15 +43,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
-		
-		if(IscollideSphere(sphere1, sphere2)) {
-			sphere1.color = RED;
-			sphere2.color = RED;
+
+		if(IsCollideSpherePlane(sphere, plane)) {
+			sphere.color = RED;
 		} else {
-			sphere1.color = WHITE;
-			sphere2.color = WHITE;
+			sphere.color = WHITE;
 		}
-		
+
 		// 各行列の計算
 		Matrix4x4 cameraMatrix =
 			MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
@@ -81,17 +66,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("SphereCenter1", &sphere1.center.x, 0.01f);
-		ImGui::DragFloat("SphereRadius1", &sphere1.radius, 0.01f);
-		ImGui::DragFloat3("SphereCenter2", &sphere2.center.x, 0.01f);
-		ImGui::DragFloat("SphereRadius2", &sphere2.radius, 0.01f);
+		ImGui::DragFloat3("SphereCenter", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("SphereRadius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("PlaneNomal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat("PlaneDistance", &plane.distance, 0.01f);
 		ImGui::End();
 #endif // _DEBUG
-
-		ImGui::InputFloat3("Point", &point.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("Segment origin", &segment.origin.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("Segment diff", &segment.diff.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 		///
 		/// ↑更新処理ここまで
@@ -100,26 +80,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		
-		//// 球体を描画する
-		DrawSphere(sphere1, viewProjectionMatrix, viewportMatrix, sphere1.color);
-		DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, sphere2.color);
 
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
-		DrawSphere(clossPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
+		//// 球体を描画する
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color);
 
-		Vector3 start =
-			Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end =
-			Transform(
-				Transform({ segment.origin.x + segment.diff.x,segment.origin.y + segment.diff.y,segment.origin.z + segment.diff.z },viewProjectionMatrix),
-				viewportMatrix);
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		// 
+		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		
+
 		///
 		/// ↑描画処理ここまで
 		///

@@ -13,8 +13,14 @@ void VectorScreenPrintf(int x, int y, Vector3 vector, const char *name);
 /*行列の計算
 *********************************************************/
 
+// ベクトルの内積
+float Dot(const Vector3 &a, const Vector3 &b);
+
 // クロス積
 Vector3 Cross(const Vector3 &v1, const Vector3 &v2);
+
+// ベクトルを正規化する関数
+Vector3 Normalize(const Vector3 &vector);
 
 /* 加法*/
 Matrix4x4 Add(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2);
@@ -82,7 +88,17 @@ void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMa
 float Length(const Vector3 &vector);
 
 // 球と球
-bool IscollideSphere(const Sphere &s1, const Sphere &s2);
+bool IsCollideSphere(const Sphere &s1, const Sphere &s2);
+
+// 球と平面
+bool IsCollideSpherePlane(const Sphere &sphere, const Plane &plane);
+
+// 平面の頂点を求める
+Vector3 Perpendicular(const Vector3 &vector);
+
+// 平面の描画
+void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
+
 Vector3 Project(const Vector3 &v1, const Vector3 &v2);
 
 Vector3 ClosestPoint(const Vector3 &point, const Segment &segment);

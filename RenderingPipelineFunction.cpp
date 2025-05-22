@@ -29,9 +29,28 @@ void VectorScreenPrintf(int x, int y, Vector3 vector, const char *name) {
 /*行列の計算
 *********************************************************/
 
+// ベクトルの内積
+float Dot(const Vector3 &a, const Vector3 &b) {
+	return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
 // クロス積
 Vector3 Cross(const Vector3 &v1, const Vector3 &v2) {
 	return Vector3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+}
+
+// ベクトルを正規化する関数
+Vector3 Normalize(const Vector3 &vector) {
+	float length = Length(vector);
+	// 長さが0の場合はゼロベクトルを返す（エラー防止）
+	if(length == 0.0f) {
+		return { 0.0f, 0.0f, 0.0f };
+	}
+	return {
+		vector.x / length,
+		vector.y / length,
+		vector.z / length
+	};
 }
 
 /* 加法*/
@@ -54,6 +73,18 @@ Matrix4x4 Add(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2) {
 	result.m[3][1] = matrix1.m[3][1] + matrix2.m[3][1];
 	result.m[3][2] = matrix1.m[3][2] + matrix2.m[3][2];
 	result.m[3][3] = matrix1.m[3][3] + matrix2.m[3][3];
+
+	return result;
+}
+
+Vector3 Add(const Vector3 a, const Vector3 b) {
+	Vector3 result = {};
+
+	result = {
+		a.x + b.x,
+		a.y + b.y,
+		a.z + b.z,
+	};
 
 	return result;
 }
@@ -240,6 +271,18 @@ Matrix4x4 Multiply(Matrix4x4 matrix1, Matrix4x4 matrix2) {
 			}
 		}
 	}
+
+	return result;
+}
+
+Vector3 Multiply(float scalar, Vector3 vector) {
+	Vector3 result = {};
+
+	result = {
+		vector.x * scalar,
+		vector.y * scalar,
+		vector.z * scalar
+	};
 
 	return result;
 }
@@ -487,7 +530,63 @@ void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMa
 
 }
 
-/*中見出し
+// 平面の描画
+void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color) {
+	/*Vector3 center = Multiply(plane.distance, plane.normal);
+	Vector3 perpendiculars[4];
+	perpendiculars[0] = Normalize(Perpendicular(plane.normal));
+	perpendiculars[1] = { -perpendiculars[0].x,-perpendiculars[0].y,-perpendiculars[0].z };
+	perpendiculars[2] = Cross(plane.normal, perpendiculars[0]);
+	perpendiculars[3] = { -perpendiculars[2].x,-perpendiculars[2].y,-perpendiculars[2].z };
+
+	Vector3 points[4];
+
+	for(int32_t index = 0; index < 4; ++index) {
+		Vector3 extend = Multiply(2.0f, perpendiculars[index]);
+		Vector3 point = Add(center, extend);
+		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
+	}
+
+	Novice::DrawLine(int(points[3].x), int(points[3].y), int(points[1].x), int(points[1].y), color);
+	Novice::DrawLine(int(points[1].x), int(points[1].y), int(points[2].x), int(points[2].y), color);
+	Novice::DrawLine(int(points[2].x), int(points[2].y), int(points[0].x), int(points[0].y), color);
+	Novice::DrawLine(int(points[3].x), int(points[3].y), int(points[0].x), int(points[0].y), color);*/
+	// 正規化された法線（念のため）
+	Vector3 normal = Normalize(plane.normal);
+
+	// 平面上の中心点（-distance × normal）
+	Vector3 center = Multiply(-plane.distance, normal);
+
+	// 平面上にある2つの垂直方向ベクトルを作成
+	Vector3 u = Normalize(Perpendicular(normal));
+	Vector3 v = Cross(normal, u);
+
+	// 平面の範囲（長さを調整できる）
+	float scale = 2.0f;
+
+	// 4頂点を作成（平面上の四角形）
+	Vector3 points[4] = {
+		Add(center, Add(Multiply(scale, u), Multiply(scale, v))), // +u +v
+		Add(center, Add(Multiply(scale, u), Multiply(-scale, v))), // +u -v
+		Add(center, Add(Multiply(-scale, u), Multiply(-scale, v))), // -u -v
+		Add(center, Add(Multiply(-scale, u), Multiply(scale, v))), // -u +v
+	};
+
+	// 変換してスクリーン座標へ
+	for(int i = 0; i < 4; ++i) {
+		points[i] = Transform(Transform(points[i], viewProjectionMatrix), viewportMatrix);
+	}
+
+	// 線で囲む
+	for(int i = 0; i < 4; ++i) {
+		int j = (i + 1) % 4;
+		Novice::DrawLine(int(points[i].x), int(points[i].y), int(points[j].x), int(points[j].y), color);
+	}
+
+
+}
+
+/*当たり判定
 *********************************************************/
 
 // 長さ
@@ -496,7 +595,7 @@ float Length(const Vector3 &vector) {
 }
 
 // 球と球
-bool IscollideSphere(const Sphere &s1, const Sphere &s2) {
+bool IsCollideSphere(const Sphere &s1, const Sphere &s2) {
 	// 2つの球の中心の距離を求める
 	float distance = Length(s2.center - s1.center);
 
@@ -505,16 +604,34 @@ bool IscollideSphere(const Sphere &s1, const Sphere &s2) {
 		return true;
 	}
 	return false;
+}
+
+bool IsCollideSpherePlane(const Sphere &sphere, const Plane &plane) {
+	Vector3 normalizedNormal = Normalize(plane.normal); // 法線を正規化
+	float distance = std::abs(Dot(normalizedNormal, sphere.center) + plane.distance);
+
+	return distance <= sphere.radius;
+}
+
+// 平面の頂点を求める
+Vector3 Perpendicular(const Vector3 &vector) {
+	if(vector.x != 0.0f || vector.y != 0.0f) {
+		return{ -vector.y,vector.x,0.0f };
+	}
+	return{ 0.0f, -vector.z, vector.y };
+}
+
+
 // 正射影ベクトル
 Vector3 Project(const Vector3 &v1, const Vector3 &v2) {
 	Vector3 result;
-	
+
 	float dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	float lenSq = v2.x * v2.x + v2.y * v2.y + v2.z * v2.z;
 	float scalar = dot / lenSq;
 
 	result = { scalar * v2.x, scalar * v2.y, scalar * v2.z };
-	
+
 	return result;
 }
 
