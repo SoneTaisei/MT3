@@ -62,6 +62,11 @@ struct Segment {
 	Vector3 diff;
 };
 
+struct Plane {
+	Vector3 normal;
+	float distance;
+};
+
 static const int kRowHeight = 20;
 static const int kColumnWidth = 70;
 static const int kWindowWidth = 1280;
