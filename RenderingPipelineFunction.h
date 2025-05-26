@@ -25,6 +25,8 @@ Vector3 Normalize(const Vector3 &vector);
 /* 加法*/
 Matrix4x4 Add(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2);
 
+Vector3 AddV(const Vector3 a, const Vector3 b);
+
 /* 減法*/
 Matrix4x4 Subtract(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2);
 
@@ -57,6 +59,8 @@ Matrix4x4 MakeRoteZMatrix(float radian);
 
 Matrix4x4 Multiply(Matrix4x4 matrix1, Matrix4x4 matrix2);
 
+Vector3 MultiplyV(float scalar, Vector3 vector);
+
 /*行列の計算
 *********************************************************/
 
@@ -75,6 +79,9 @@ Matrix4x4 MakeAffineMatrix(const Vector3 &scale, const Vector3 &rotate, const Ve
 // 逆行列
 Matrix4x4 Inverse(const Matrix4x4 &m);
 
+// 平面を法線と点から作成
+Plane MakePlaneFromPointAndNormal(const Vector3 &point, const Vector3 &normal);
+
 /*描画
 *********************************************************/
 
@@ -92,6 +99,9 @@ bool IsCollideSphere(const Sphere &s1, const Sphere &s2);
 
 // 球と平面
 bool IsCollideSpherePlane(const Sphere &sphere, const Plane &plane);
+
+// 球と線分
+bool IsCollideSegmentPlane(const Segment &segment, const Plane &plane);
 
 // 平面の頂点を求める
 Vector3 Perpendicular(const Vector3 &vector);

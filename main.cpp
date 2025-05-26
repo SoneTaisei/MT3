@@ -24,11 +24,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// カメラ座標
 	Vector3 cameraTranslate = { 0.0f,1.9f,-6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
+	Vector3 cameraScale = { 1.0f,1.0f,1.0f };
 
-	Sphere sphere = { {0.0f,1.0f,0.0f }, 1.0f };
-	sphere.color = WHITE;
+	Segment segment = { {-0.45f,-1.45f,0.0f},{1.0f,0.58f,0.0f} };
 
-	Plane plane = { Normalize({0.0f,1.2f,0.0f}),-1.0f };
+	Vector3 planePoint = { 0.0f, -1.0f, 0.0f }; // 平面が通る位置（例：y = -1）
+	Vector3 planeNormal = { 0.0f, 1.2f, 0.0f }; // 向き（例：上向き）
+
+	Plane plane = MakePlaneFromPointAndNormal(planePoint, planeNormal);
 
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -44,10 +47,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		if(IsCollideSpherePlane(sphere, plane)) {
-			sphere.color = RED;
+		if(IsCollideSegmentPlane(segment, plane)) {
+			segment.color = RED;
 		} else {
-			sphere.color = WHITE;
+			segment.color = WHITE;
 		}
 
 		// 各行列の計算
@@ -64,13 +67,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
-		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("SphereCenter", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("SphereRadius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("SegmentCenter", &segment.origin.x, 0.01f);
 		ImGui::DragFloat3("PlaneNomal", &plane.normal.x, 0.01f);
 		ImGui::DragFloat("PlaneDistance", &plane.distance, 0.01f);
 		ImGui::End();
+		/*マウスでカメラ操作
+		*********************************************************/
+
+		ImGuiIO &io = ImGui::GetIO();
+
+		// 右クリックドラッグで回転
+		if(io.MouseDown[1]) {
+			cameraRotate.y += io.MouseDelta.x * 0.001f;
+			cameraRotate.x += io.MouseDelta.y * 0.001f;
+
+			// clamp pitch
+			cameraRotate.x = std::clamp(cameraRotate.x, -1.57f, 1.57f);  // ±90度
+		}
+		
+		// 中クリックドラッグで平行移動
+		if(io.MouseDown[2]) {
+			Vector3 right = { cosf(cameraRotate.y), 0, -sinf(cameraRotate.y) };
+			Vector3 up = { 0, 1, 0 };
+
+			cameraTranslate = AddV(cameraTranslate, MultiplyV(-io.MouseDelta.x * 0.01f, right));
+			cameraTranslate = AddV(cameraTranslate, MultiplyV(io.MouseDelta.y * 0.01f, up));
+		}
+
+		// ホイールでズーム
+		cameraTranslate.z += io.MouseWheel * -0.5f;
+		cameraTranslate.z = std::clamp(cameraTranslate.z, -6.49f, 50.0f);
 #endif // _DEBUG
 
 		///
@@ -84,13 +110,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		//// 球体を描画する
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color);
-
-		// 
+		// 平面を描画する
 		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 
-		
+		// 描画用
+		Vector3 endPos = AddV(segment.origin, segment.diff); // 1か所で一貫
+		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(endPos, viewProjectionMatrix), viewportMatrix);
+
+		// 線を描画する
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
+
 
 		///
 		/// ↑描画処理ここまで

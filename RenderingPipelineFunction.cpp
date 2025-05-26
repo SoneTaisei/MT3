@@ -77,7 +77,7 @@ Matrix4x4 Add(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2) {
 	return result;
 }
 
-Vector3 Add(const Vector3 a, const Vector3 b) {
+Vector3 AddV(const Vector3 a, const Vector3 b) {
 	Vector3 result = {};
 
 	result = {
@@ -275,7 +275,7 @@ Matrix4x4 Multiply(Matrix4x4 matrix1, Matrix4x4 matrix2) {
 	return result;
 }
 
-Vector3 Multiply(float scalar, Vector3 vector) {
+Vector3 MultiplyV(float scalar, Vector3 vector) {
 	Vector3 result = {};
 
 	result = {
@@ -532,30 +532,11 @@ void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMa
 
 // 平面の描画
 void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color) {
-	/*Vector3 center = Multiply(plane.distance, plane.normal);
-	Vector3 perpendiculars[4];
-	perpendiculars[0] = Normalize(Perpendicular(plane.normal));
-	perpendiculars[1] = { -perpendiculars[0].x,-perpendiculars[0].y,-perpendiculars[0].z };
-	perpendiculars[2] = Cross(plane.normal, perpendiculars[0]);
-	perpendiculars[3] = { -perpendiculars[2].x,-perpendiculars[2].y,-perpendiculars[2].z };
-
-	Vector3 points[4];
-
-	for(int32_t index = 0; index < 4; ++index) {
-		Vector3 extend = Multiply(2.0f, perpendiculars[index]);
-		Vector3 point = Add(center, extend);
-		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
-	}
-
-	Novice::DrawLine(int(points[3].x), int(points[3].y), int(points[1].x), int(points[1].y), color);
-	Novice::DrawLine(int(points[1].x), int(points[1].y), int(points[2].x), int(points[2].y), color);
-	Novice::DrawLine(int(points[2].x), int(points[2].y), int(points[0].x), int(points[0].y), color);
-	Novice::DrawLine(int(points[3].x), int(points[3].y), int(points[0].x), int(points[0].y), color);*/
 	// 正規化された法線（念のため）
 	Vector3 normal = Normalize(plane.normal);
 
 	// 平面上の中心点（-distance × normal）
-	Vector3 center = Multiply(-plane.distance, normal);
+	Vector3 center = MultiplyV(-plane.distance, normal);
 
 	// 平面上にある2つの垂直方向ベクトルを作成
 	Vector3 u = Normalize(Perpendicular(normal));
@@ -566,10 +547,10 @@ void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const 
 
 	// 4頂点を作成（平面上の四角形）
 	Vector3 points[4] = {
-		Add(center, Add(Multiply(scale, u), Multiply(scale, v))), // +u +v
-		Add(center, Add(Multiply(scale, u), Multiply(-scale, v))), // +u -v
-		Add(center, Add(Multiply(-scale, u), Multiply(-scale, v))), // -u -v
-		Add(center, Add(Multiply(-scale, u), Multiply(scale, v))), // -u +v
+		AddV(center, AddV(MultiplyV(scale, u), MultiplyV(scale, v))), // +u +v
+		AddV(center, AddV(MultiplyV(scale, u), MultiplyV(-scale, v))), // +u -v
+		AddV(center, AddV(MultiplyV(-scale, u), MultiplyV(-scale, v))), // -u -v
+		AddV(center, AddV(MultiplyV(-scale, u), MultiplyV(scale, v))), // -u +v
 	};
 
 	// 変換してスクリーン座標へ
@@ -584,6 +565,13 @@ void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const 
 	}
 
 
+}
+
+// 平面を法線と点から作成
+Plane MakePlaneFromPointAndNormal(const Vector3 &point, const Vector3 &normal) {
+	Vector3 normalized = Normalize(normal);
+	float distance = Dot(normalized, point);
+	return { normalized, distance };
 }
 
 /*当たり判定
@@ -606,11 +594,28 @@ bool IsCollideSphere(const Sphere &s1, const Sphere &s2) {
 	return false;
 }
 
+// 球と平面
 bool IsCollideSpherePlane(const Sphere &sphere, const Plane &plane) {
 	Vector3 normalizedNormal = Normalize(plane.normal); // 法線を正規化
 	float distance = std::abs(Dot(normalizedNormal, sphere.center) + plane.distance);
 
 	return distance <= sphere.radius;
+}
+
+// 線分と平面
+bool IsCollideSegmentPlane(const Segment &segment, const Plane &plane) {
+	Vector3 A = segment.origin;
+	Vector3 B = AddV(segment.origin, segment.diff);
+	Vector3 dir = { B.x - A.x, B.y - A.y, B.z - A.z };
+
+	float denom = Dot(plane.normal, dir);
+	if(fabs(denom) < 1e-6f) {
+		// 平行 or nearly parallel
+		return false;
+	}
+	// solve n·(A + t dir) + D = 0  =>  t = -(n·A + D) / (n·dir)
+	float t = -(Dot(plane.normal, A) + plane.distance) / denom;
+	return (t >= 0.0f && t <= 1.0f);
 }
 
 // 平面の頂点を求める
