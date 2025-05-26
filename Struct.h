@@ -69,6 +69,10 @@ struct Plane {
 	float distance;
 };
 
+struct Triangle {
+	Vector3 vertices[3];// 頂点
+};
+
 static const int kRowHeight = 20;
 static const int kColumnWidth = 70;
 static const int kWindowWidth = 1280;
