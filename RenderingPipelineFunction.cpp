@@ -567,6 +567,26 @@ void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const 
 
 }
 
+// 三角形の描画
+void DrawTriangle(const Triangle &triangle, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color) {
+	Vector3 screenVertices[3];
+
+	// 各頂点を ビュー射影 → ビューポート の順で変換
+	for(int i = 0; i < 3; ++i) {
+		Vector3 ndc = Transform(triangle.vertices[i], viewProjectionMatrix);   // 1. クリップ空間→NDC
+		screenVertices[i] = Transform(ndc, viewportMatrix);             // 2. NDC→スクリーン
+	}
+
+	Novice::DrawTriangle(
+		static_cast<int>(screenVertices[0].x), static_cast<int>(screenVertices[0].y),
+		static_cast<int>(screenVertices[1].x), static_cast<int>(screenVertices[1].y),
+		static_cast<int>(screenVertices[2].x), static_cast<int>(screenVertices[2].y),
+		color, kFillModeWireFrame
+	);
+
+	
+}
+
 // 平面を法線と点から作成
 Plane MakePlaneFromPointAndNormal(const Vector3 &point, const Vector3 &normal) {
 	Vector3 normalized = Normalize(normal);
@@ -616,6 +636,41 @@ bool IsCollideSegmentPlane(const Segment &segment, const Plane &plane) {
 	// solve n·(A + t dir) + D = 0  =>  t = -(n·A + D) / (n·dir)
 	float t = -(Dot(plane.normal, A) + plane.distance) / denom;
 	return (t >= 0.0f && t <= 1.0f);
+}
+
+// 三角形と線分
+bool IsCollisionTriangleSegment(const Triangle triangle, const Segment &segment) {
+	const float EPSILON = 1e-5f;
+
+	Vector3 edge1 = triangle.vertices[1] - triangle.vertices[0];
+	Vector3 edge2 = triangle.vertices[2] - triangle.vertices[0];
+	Vector3 dir = segment.diff;
+	Vector3 h = Cross(dir, edge2);
+	float a = Dot(edge1, h);
+
+	if(std::abs(a) < EPSILON) {
+		return false;  // 平行で交差しない
+	}
+
+	float f = 1.0f / a;
+	Vector3 s = segment.origin - triangle.vertices[0];
+	float u = f * Dot(s, h);
+	if(u < 0.0f || u > 1.0f) {
+		return false;
+	}
+
+	Vector3 q = Cross(s, edge1);
+	float v = f * Dot(dir, q);
+	if(v < 0.0f || u + v > 1.0f) {
+		return false;
+	}
+
+	float t = f * Dot(edge2, q);
+	if(t < 0.0f || t > 1.0f) {
+		return false;  // 線分の範囲外
+	}
+
+	return true;
 }
 
 // 平面の頂点を求める

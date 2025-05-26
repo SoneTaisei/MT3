@@ -28,10 +28,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Segment segment = { {-0.45f,-1.45f,0.0f},{1.0f,0.58f,0.0f} };
 
-	Vector3 planePoint = { 0.0f, -1.0f, 0.0f }; // 平面が通る位置（例：y = -1）
-	Vector3 planeNormal = { 0.0f, 1.2f, 0.0f }; // 向き（例：上向き）
-
-	Plane plane = MakePlaneFromPointAndNormal(planePoint, planeNormal);
+	Triangle triangle;
+	triangle.vertices[0] = { -1.0f,0.0f,0.0f };
+	triangle.vertices[1] = { 1.0f,0.0f,0.0f };
+	triangle.vertices[2] = { 0.0f,1.0f,0.0f };
 
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -47,7 +47,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		if(IsCollideSegmentPlane(segment, plane)) {
+		if(IsCollisionTriangleSegment(triangle, segment)) {
 			segment.color = RED;
 		} else {
 			segment.color = WHITE;
@@ -67,9 +67,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::Begin("Window");
+		ImGui::DragFloat3("Triangle[0]", &triangle.vertices[0].x, 0.01f);
+		ImGui::DragFloat3("Triangle[1]", &triangle.vertices[1].x, 0.01f);
+		ImGui::DragFloat3("Triangle[2]", &triangle.vertices[2].x, 0.01f);
 		ImGui::DragFloat3("SegmentCenter", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("PlaneNomal", &plane.normal.x, 0.01f);
-		ImGui::DragFloat("PlaneDistance", &plane.distance, 0.01f);
+		ImGui::DragFloat3("SegmentDiff", &segment.diff.x, 0.01f);
 		ImGui::End();
 		/*マウスでカメラ操作
 		*********************************************************/
@@ -84,7 +86,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			// clamp pitch
 			cameraRotate.x = std::clamp(cameraRotate.x, -1.57f, 1.57f);  // ±90度
 		}
-		
+
 		// 中クリックドラッグで平行移動
 		if(io.MouseDown[2]) {
 			Vector3 right = { cosf(cameraRotate.y), 0, -sinf(cameraRotate.y) };
@@ -110,8 +112,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		// 平面を描画する
-		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
+		// 三角形の描画
+		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		// 描画用
 		Vector3 endPos = AddV(segment.origin, segment.diff); // 1か所で一貫

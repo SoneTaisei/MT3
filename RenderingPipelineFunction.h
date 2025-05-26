@@ -91,6 +91,15 @@ void DrawSphere(const Sphere &sphere, const Matrix4x4 &viewProjectionMatrix, con
 // グリッド
 void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix);
 
+// 平面の描画
+void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
+
+// 三角形の描画
+void DrawTriangle(const Triangle &triangle, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
+
+/*当たり判定
+*********************************************************/
+
 // 長さ
 float Length(const Vector3 &vector);
 
@@ -103,11 +112,11 @@ bool IsCollideSpherePlane(const Sphere &sphere, const Plane &plane);
 // 球と線分
 bool IsCollideSegmentPlane(const Segment &segment, const Plane &plane);
 
+// 線分と平面
+bool IsCollisionTriangleSegment(const Triangle triangle, const Segment &segment);
+
 // 平面の頂点を求める
 Vector3 Perpendicular(const Vector3 &vector);
-
-// 平面の描画
-void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
 
 Vector3 Project(const Vector3 &v1, const Vector3 &v2);
 
