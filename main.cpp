@@ -67,9 +67,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("SegmentCenter", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("PlaneNomal", &plane.normal.x, 0.01f);
-		ImGui::DragFloat("PlaneDistance", &plane.distance, 0.01f);
+		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat("Plane.Distance", &plane.distance, 0.01f);
+		ImGui::DragFloat3("Segment.Origin", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("Segment.Diff", &segment.diff.x, 0.01f);
 		ImGui::End();
 		/*マウスでカメラ操作
 		*********************************************************/
