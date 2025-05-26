@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("Triangle[0]", &triangle.vertices[0].x, 0.01f);
 		ImGui::DragFloat3("Triangle[1]", &triangle.vertices[1].x, 0.01f);
 		ImGui::DragFloat3("Triangle[2]", &triangle.vertices[2].x, 0.01f);
-		ImGui::DragFloat3("SegmentCenter", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("SegmentOrigin", &segment.origin.x, 0.01f);
 		ImGui::DragFloat3("SegmentDiff", &segment.diff.x, 0.01f);
 		ImGui::End();
 		/*マウスでカメラ操作
