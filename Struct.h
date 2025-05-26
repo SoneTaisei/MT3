@@ -3,6 +3,7 @@
 #include<cmath>
 
 #include"assert.h"
+#include <algorithm>
 // 4x4の行列
 struct Matrix4x4 {
 	float m[4][4];
@@ -60,6 +61,7 @@ struct Ray {
 struct Segment {
 	Vector3 origin;
 	Vector3 diff;
+	unsigned int color;
 };
 
 struct Plane {
