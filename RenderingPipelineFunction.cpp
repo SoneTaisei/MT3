@@ -718,13 +718,30 @@ bool IsCollisionTriangleSegment(const Triangle triangle, const Segment &segment)
 	return true;
 }
 
-bool IScolliderAABB(const AABB &a, const AABB &b) {
+bool IsColliderAABB(const AABB &a, const AABB &b) {
 	if((a.min.x <= b.max.x && a.max.x >= b.min.x) &&
 		(a.min.y <= b.max.y && a.max.y >= b.min.y) &&
 		(a.min.z <= b.max.z && a.max.z >= b.min.z)) {
 		return true;
 	}
 
+	return false;
+}
+
+bool IsColliderAABBSphere(const AABB &aabb, const Sphere &sphere) {
+	// 最近接点を求める
+	Vector3 closetPoint = {
+		std::clamp(sphere.center.x,aabb.min.x,aabb.max.x),
+		std::clamp(sphere.center.y,aabb.min.y,aabb.max.y),
+		std::clamp(sphere.center.z,aabb.min.z,aabb.max.z)
+	};
+
+	// 最近接点と球の中心との距離を求める
+	float distance = Length(closetPoint - sphere.center);
+	// 距離が半径うよりも小さければ衝突
+	if(distance < sphere.radius) {
+		return true;
+	}
 	return false;
 }
 

@@ -119,7 +119,10 @@ bool IsCollideSegmentPlane(const Segment &segment, const Plane &plane);
 bool IsCollisionTriangleSegment(const Triangle triangle, const Segment &segment);
 
 // AABBとAABB
-bool IScolliderAABB(const AABB &a, const AABB &b);
+bool IsColliderAABB(const AABB &a, const AABB &b);
+
+// AABBと球
+bool IsColliderAABBSphere(const AABB &aabb, const Sphere &sphere);
 
 // 平面の頂点を求める
 Vector3 Perpendicular(const Vector3 &vector);

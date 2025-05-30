@@ -26,9 +26,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 	Vector3 cameraScale = { 1.0f,1.0f,1.0f };
 
-	AABB aabb[2] = {
-		{.min{-0.5f,-0.5f,-0.5f},.max{0.0f,0.0f,0.0f},.color{WHITE}},
-		{.min{-0.2f,-0.2f,-0.2f},.max{1.0f,1.0f,1.0f},.color{WHITE}}
+	AABB aabb = {
+		.min{-0.5f,-0.5f,-0.5f},.max{0.0f,0.0f,0.0f},.color{WHITE}
+	};
+
+	Sphere sphere = {
+		.center{0.0f,0.0f,0.0f},
+		.radius{0.5f},
+		.color{WHITE}
 	};
 
 
@@ -45,12 +50,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		if(IScolliderAABB(aabb[0], aabb[1])) {
-			aabb[0].color = RED;
-			aabb[1].color = RED;
+		if(IsColliderAABBSphere(aabb, sphere)) {
+			aabb.color = RED;
+			sphere.color = RED;
 		} else {
-			aabb[0].color = WHITE;
-			aabb[1].color = WHITE;
+			aabb.color = WHITE;
+			sphere.color = WHITE;
 		}
 
 		// 各行列の計算
@@ -67,10 +72,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("AABB[0].min", &aabb[0].min.x, 0.01f);
-		ImGui::DragFloat3("AABB[0].max", &aabb[0].max.x, 0.01f);
-		ImGui::DragFloat3("AABB[1].min", &aabb[1].min.x, 0.01f);
-		ImGui::DragFloat3("AABB[1].max", &aabb[1].max.x, 0.01f);
+		ImGui::DragFloat3("AABB.min", &aabb.min.x, 0.01f);
+		ImGui::DragFloat3("AABB.max", &aabb.max.x, 0.01f);
+		ImGui::DragFloat3("Sphere.Center", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("Sphere.Radius", &sphere.radius, 0.01f);
 		ImGui::End();
 		/*マウスでカメラ操作
 		*********************************************************/
@@ -112,9 +117,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
 		// AABBを描画
-		for(int i = 0; i < 2; ++i) {
-			DrawAABB(aabb[i], viewProjectionMatrix, viewportMatrix, aabb[i].color);
-		}
+		DrawAABB(aabb, viewProjectionMatrix, viewportMatrix, aabb.color);
+
+		// 球を描画
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color);
 
 		///
 		/// ↑描画処理ここまで
