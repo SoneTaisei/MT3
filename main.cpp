@@ -26,12 +26,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 	Vector3 cameraScale = { 1.0f,1.0f,1.0f };
 
-	Segment segment = { {-0.45f,-1.45f,0.0f},{1.0f,0.58f,0.0f} };
-
-	Triangle triangle;
-	triangle.vertices[0] = { -1.0f,0.0f,0.0f };
-	triangle.vertices[1] = { 1.0f,0.0f,0.0f };
-	triangle.vertices[2] = { 0.0f,1.0f,0.0f };
+	AABB aabb[2] = {
+		{.min{-0.5f,-0.5f,-0.5f},.max{0.0f,0.0f,0.0f},.color{WHITE}},
+		{.min{-0.2f,-0.2f,-0.2f},.max{1.0f,1.0f,1.0f},.color{WHITE}}
+	};
 
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -47,10 +45,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		if(IsCollisionTriangleSegment(triangle, segment)) {
-			segment.color = RED;
+		if(IScolliderAABB(aabb[0], aabb[1])) {
+			aabb[0].color = RED;
+			aabb[1].color = RED;
 		} else {
-			segment.color = WHITE;
+			aabb[0].color = WHITE;
+			aabb[1].color = WHITE;
 		}
 
 		// 各行列の計算
@@ -67,11 +67,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("Triangle[0]", &triangle.vertices[0].x, 0.01f);
-		ImGui::DragFloat3("Triangle[1]", &triangle.vertices[1].x, 0.01f);
-		ImGui::DragFloat3("Triangle[2]", &triangle.vertices[2].x, 0.01f);
-		ImGui::DragFloat3("SegmentOrigin", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("SegmentDiff", &segment.diff.x, 0.01f);
+		ImGui::DragFloat3("AABB[0].min", &aabb[0].min.x, 0.01f);
+		ImGui::DragFloat3("AABB[0].max", &aabb[0].max.x, 0.01f);
+		ImGui::DragFloat3("AABB[1].min", &aabb[1].min.x, 0.01f);
+		ImGui::DragFloat3("AABB[1].max", &aabb[1].max.x, 0.01f);
 		ImGui::End();
 		/*マウスでカメラ操作
 		*********************************************************/
@@ -112,17 +111,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		// 三角形の描画
-		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
-
-		// 描画用
-		Vector3 endPos = AddV(segment.origin, segment.diff); // 1か所で一貫
-		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(endPos, viewProjectionMatrix), viewportMatrix);
-
-		// 線を描画する
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
-
+		// AABBを描画
+		for(int i = 0; i < 2; ++i) {
+			DrawAABB(aabb[i], viewProjectionMatrix, viewportMatrix, aabb[i].color);
+		}
 
 		///
 		/// ↑描画処理ここまで

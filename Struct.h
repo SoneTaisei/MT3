@@ -73,6 +73,12 @@ struct Triangle {
 	Vector3 vertices[3];// 頂点
 };
 
+struct AABB {
+	Vector3 min;//!<最小点
+	Vector3 max;//!<最大点
+	unsigned int color;//<!色
+};
+
 static const int kRowHeight = 20;
 static const int kColumnWidth = 70;
 static const int kWindowWidth = 1280;

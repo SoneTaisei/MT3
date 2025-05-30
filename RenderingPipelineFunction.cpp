@@ -584,7 +584,52 @@ void DrawTriangle(const Triangle &triangle, const Matrix4x4 &viewProjectionMatri
 		color, kFillModeWireFrame
 	);
 
-	
+
+}
+
+void DrawAABB(const AABB &aabb, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color) {
+	Vector3 min = aabb.min;
+	Vector3 max = aabb.max;
+	Vector3 vertices[8] = {
+		{min.x,min.y,min.z},
+		{min.x,min.y,max.z},
+		{min.x,max.y,max.z},
+		{min.x,max.y,min.z},
+		{max.x,min.y,min.z},
+		{max.x,min.y,max.z},
+		{max.x,max.y,max.z},
+		{max.x,max.y,min.z},
+	};
+
+	// スクリーン座標に変換
+	for(int i = 0; i < 8; ++i) {
+		vertices[i] = Transform(vertices[i], viewProjectionMatrix);
+		vertices[i] = Transform(vertices[i], viewportMatrix);
+	}
+
+	// エッジを描画
+	for(int i = 0; i < 4; ++i) {
+		int next = (i + 1) % 4;
+		// 底面のエッジ
+		Novice::DrawLine(
+			static_cast<int>(vertices[i].x), static_cast<int>(vertices[i].y),
+			static_cast<int>(vertices[next].x), static_cast<int>(vertices[next].y),
+			color
+		);
+		// 上面のエッジ
+		Novice::DrawLine(
+			static_cast<int>(vertices[i + 4].x), static_cast<int>(vertices[i + 4].y),
+			static_cast<int>(vertices[next + 4].x), static_cast<int>(vertices[next + 4].y),
+			color
+		);
+		// 垂直エッジ
+		Novice::DrawLine(
+			static_cast<int>(vertices[i].x), static_cast<int>(vertices[i].y),
+			static_cast<int>(vertices[i + 4].x), static_cast<int>(vertices[i + 4].y),
+			color
+		);
+
+	};
 }
 
 // 平面を法線と点から作成
@@ -671,6 +716,16 @@ bool IsCollisionTriangleSegment(const Triangle triangle, const Segment &segment)
 	}
 
 	return true;
+}
+
+bool IScolliderAABB(const AABB &a, const AABB &b) {
+	if((a.min.x <= b.max.x && a.max.x >= b.min.x) &&
+		(a.min.y <= b.max.y && a.max.y >= b.min.y) &&
+		(a.min.z <= b.max.z && a.max.z >= b.min.z)) {
+		return true;
+	}
+
+	return false;
 }
 
 // 平面の頂点を求める
