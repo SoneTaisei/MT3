@@ -745,6 +745,10 @@ bool IsColliderAABBSphere(const AABB &aabb, const Sphere &sphere) {
 	return false;
 }
 
+bool IsColliderAABBSegment(const AABB &aabb, const Segment &segment) {
+
+}
+
 // 平面の頂点を求める
 Vector3 Perpendicular(const Vector3 &vector) {
 	if(vector.x != 0.0f || vector.y != 0.0f) {
