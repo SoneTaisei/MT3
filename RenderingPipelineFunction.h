@@ -97,6 +97,9 @@ void DrawPlane(const Plane &plane, const Matrix4x4 &viewProjectionMatrix, const 
 // 三角形の描画
 void DrawTriangle(const Triangle &triangle, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
 
+// AABBの描画
+void DrawAABB(const AABB &aabb, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
+
 /*当たり判定
 *********************************************************/
 
@@ -114,6 +117,9 @@ bool IsCollideSegmentPlane(const Segment &segment, const Plane &plane);
 
 // 線分と平面
 bool IsCollisionTriangleSegment(const Triangle triangle, const Segment &segment);
+
+// AABBとAABB
+bool IScolliderAABB(const AABB &a, const AABB &b);
 
 // 平面の頂点を求める
 Vector3 Perpendicular(const Vector3 &vector);
