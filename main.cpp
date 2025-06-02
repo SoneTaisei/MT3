@@ -30,9 +30,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		.min{-0.5f,-0.5f,-0.5f},.max{0.0f,0.0f,0.0f},.color{WHITE}
 	};
 
-	Sphere sphere = {
-		.center{0.0f,0.0f,0.0f},
-		.radius{0.5f},
+	Segment segment{
+		.origin{-0.7f,0.3f,0.0f},
+		.diff{2.0f,-0.5f,0.0f},
 		.color{WHITE}
 	};
 
@@ -50,12 +50,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		if(IsColliderAABBSphere(aabb, sphere)) {
+		if(IsColliderAABBSegment(aabb, segment)) {
 			aabb.color = RED;
-			sphere.color = RED;
+			segment.color = RED;
 		} else {
 			aabb.color = WHITE;
-			sphere.color = WHITE;
+			segment.color = WHITE;
 		}
 
 		// 各行列の計算
@@ -74,8 +74,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("AABB.min", &aabb.min.x, 0.01f);
 		ImGui::DragFloat3("AABB.max", &aabb.max.x, 0.01f);
-		ImGui::DragFloat3("Sphere.Center", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("Sphere.Radius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("Sphere.Center", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("Sphere.Radius", &segment.diff.x, 0.01f);
 		ImGui::End();
 		/*マウスでカメラ操作
 		*********************************************************/
@@ -120,7 +120,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawAABB(aabb, viewProjectionMatrix, viewportMatrix, aabb.color);
 
 		// 球を描画
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color);
+		// 描画用
+		Vector3 endPos = AddV(segment.origin, segment.diff); // 1か所で一貫
+		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(endPos, viewProjectionMatrix), viewportMatrix);
+
+		// 線を描画する
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
 
 		///
 		/// ↑描画処理ここまで

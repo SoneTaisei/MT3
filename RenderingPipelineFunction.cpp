@@ -745,6 +745,37 @@ bool IsColliderAABBSphere(const AABB &aabb, const Sphere &sphere) {
 	return false;
 }
 
+bool IsColliderAABBSegment(const AABB &aabb, const Segment &segment) {
+	Vector3 d = segment.diff;  // p1 - p0
+	Vector3 p0 = segment.origin;
+
+	float tmin = 0.0f;
+	float tmax = 1.0f;
+
+	for(int i = 0; i < 3; ++i) {
+		float start = (&p0.x)[i];
+		float dir = (&d.x)[i];
+		float minB = (&aabb.min.x)[i];
+		float maxB = (&aabb.max.x)[i];
+
+		if(fabs(dir) < 1e-6f) {
+			// 線分がこの軸方向に平行な場合
+			if(start < minB || start > maxB) {
+				return false;
+			}
+		} else {
+			float t1 = (minB - start) / dir;
+			float t2 = (maxB - start) / dir;
+			if(t1 > t2) std::swap(t1, t2);
+			tmin = max(tmin, t1);
+			tmax = min(tmax, t2);
+			if(tmin > tmax) return false;
+		}
+	}
+
+	return true;
+}
+
 // 平面の頂点を求める
 Vector3 Perpendicular(const Vector3 &vector) {
 	if(vector.x != 0.0f || vector.y != 0.0f) {
