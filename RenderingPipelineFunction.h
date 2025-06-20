@@ -82,6 +82,12 @@ Matrix4x4 Inverse(const Matrix4x4 &m);
 // 平面を法線と点から作成
 Plane MakePlaneFromPointAndNormal(const Vector3 &point, const Vector3 &normal);
 
+/*イージング
+*********************************************************/
+
+// 線形補間
+Vector3 Leap(const Vector3 &start, const Vector3 &end, float t);
+
 /*描画
 *********************************************************/
 
@@ -99,6 +105,9 @@ void DrawTriangle(const Triangle &triangle, const Matrix4x4 &viewProjectionMatri
 
 // AABBの描画
 void DrawAABB(const AABB &aabb, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
+
+// ジベェ曲線の描画
+void DrawBezier(const Vector3 &controlPoint0, const Vector3 &controlPoint1, const Vector3 &controlPoint2,const Matrix4x4&viewProjectionMatrix,const Matrix4x4&viewportMatrix,uint32_t color);
 
 /*当たり判定
 *********************************************************/
@@ -130,6 +139,10 @@ bool IsColliderAABBSegment(const AABB &aabb, const Segment &segment);
 // 平面の頂点を求める
 Vector3 Perpendicular(const Vector3 &vector);
 
+// 正射影ベクトル
 Vector3 Project(const Vector3 &v1, const Vector3 &v2);
 
+// 最近接点
 Vector3 ClosestPoint(const Vector3 &point, const Segment &segment);
+
+
