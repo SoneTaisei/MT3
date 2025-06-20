@@ -26,14 +26,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 	Vector3 cameraScale = { 1.0f,1.0f,1.0f };
 
-	AABB aabb = {
-		.min{-0.5f,-0.5f,-0.5f},.max{0.0f,0.0f,0.0f},.color{WHITE}
-	};
-
-	Segment segment{
-		.origin{-0.7f,0.3f,0.0f},
-		.diff{2.0f,-0.5f,0.0f},
-		.color{WHITE}
+	Vector3 controlPoints[3]{
+		{-0.8f,0.5f,1.0f},
+		{1.76f,1.0f,-0.3f},
+		{0.94f,-0.7f,2.3f},
 	};
 
 
@@ -50,14 +46,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		if(IsColliderAABBSegment(aabb, segment)) {
-			aabb.color = RED;
-			segment.color = RED;
-		} else {
-			aabb.color = WHITE;
-			segment.color = WHITE;
-		}
-
 		// 各行列の計算
 		Matrix4x4 cameraMatrix =
 			MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
@@ -72,10 +60,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("AABB.min", &aabb.min.x, 0.01f);
-		ImGui::DragFloat3("AABB.max", &aabb.max.x, 0.01f);
-		ImGui::DragFloat3("Sphere.Center", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("Sphere.Radius", &segment.diff.x, 0.01f);
+		ImGui::DragFloat3("controlPoints[0]", &controlPoints[0].x, 0.01f);
+		ImGui::DragFloat3("controlPoints[1]", &controlPoints[1].x, 0.01f);
+		ImGui::DragFloat3("controlPoints[2]", &controlPoints[2].x, 0.01f);
 		ImGui::End();
 		/*マウスでカメラ操作
 		*********************************************************/
@@ -116,17 +103,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		// AABBを描画
-		DrawAABB(aabb, viewProjectionMatrix, viewportMatrix, aabb.color);
+		Sphere sphereControlPositions[3] = {};
+		for(uint32_t i = 0; i < 3; ++i) {
+			sphereControlPositions[i].center = controlPoints[i];
+			sphereControlPositions[i].radius = 0.01f;
+		}
 
-		// 球を描画
-		// 描画用
-		Vector3 endPos = AddV(segment.origin, segment.diff); // 1か所で一貫
-		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(endPos, viewProjectionMatrix), viewportMatrix);
+		// 点の場所
+		DrawSphere(sphereControlPositions[0], viewProjectionMatrix, viewportMatrix, BLACK);
+		DrawSphere(sphereControlPositions[1], viewProjectionMatrix, viewportMatrix, BLACK);
+		DrawSphere(sphereControlPositions[2], viewProjectionMatrix, viewportMatrix, BLACK);
 
-		// 線を描画する
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
+		// ベジェ曲線
+		DrawBezier(controlPoints[0], controlPoints[1], controlPoints[2], viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

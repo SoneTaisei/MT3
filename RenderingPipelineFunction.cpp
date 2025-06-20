@@ -632,11 +632,44 @@ void DrawAABB(const AABB &aabb, const Matrix4x4 &viewProjectionMatrix, const Mat
 	};
 }
 
+void DrawBezier(const Vector3 &controlPoint0, const Vector3 &controlPoint1, const Vector3 &controlPoint2, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color) {
+	float t = 0;
+	Vector3 prevPos = controlPoint0;
+	for(uint32_t i = 0; i < 16; ++i) {
+		t += 1.0f / 16.0f;
+		// 制御点p0,p1を線形補間
+		Vector3 p0p1 = Leap(controlPoint0, controlPoint1, t);
+		// 制御点p1,p2を線形補間
+		Vector3 p1p2 = Leap(controlPoint1, controlPoint2, t);
+		// 補間店p0p1,p1p2をさらに線形補間
+		Vector3 p = Leap(p0p1, p1p2, t);
+
+		// ワールド→スクリーン座標に変換
+		Vector3 screenPrev = Transform(Transform(prevPos, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenP = Transform(Transform(p, viewProjectionMatrix), viewportMatrix);
+
+		// ライン描画
+		Novice::DrawLine((int)screenPrev.x, (int)screenPrev.y,
+			(int)screenP.x, (int)screenP.y, color);
+
+		prevPos = p;
+	}
+}
+
 // 平面を法線と点から作成
 Plane MakePlaneFromPointAndNormal(const Vector3 &point, const Vector3 &normal) {
 	Vector3 normalized = Normalize(normal);
 	float distance = Dot(normalized, point);
 	return { normalized, distance };
+}
+
+// 線形補間
+Vector3 Leap(const Vector3 &start, const Vector3 &end, float t) {
+	return {
+	start.x + (end.x - start.x) * t,
+	start.y + (end.y - start.y) * t,
+	start.z + (end.z - start.z) * t
+	};
 }
 
 /*当たり判定
