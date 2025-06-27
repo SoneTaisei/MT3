@@ -503,11 +503,19 @@ void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMa
 		Vector3 screenStartPos = Transform(clipStartPos, viewportMatrix);
 		Vector3 screenEndPos = Transform(clipEndPosB, viewportMatrix);
 
-		Novice::DrawLine(
-			int(screenStartPos.x), int(screenStartPos.y),
-			int(screenEndPos.x), int(screenEndPos.y),
-			0xAAAAAAFF
-		);
+		if(xIndex == 5) {
+			Novice::DrawLine(
+				int(screenStartPos.x), int(screenStartPos.y),
+				int(screenEndPos.x), int(screenEndPos.y),
+				BLACK
+			);
+		} else {
+			Novice::DrawLine(
+				int(screenStartPos.x), int(screenStartPos.y),
+				int(screenEndPos.x), int(screenEndPos.y),
+				0xAAAAAAFF
+			);
+		}
 	}
 
 	for(uint32_t zIndex = 0; zIndex <= kSubdivision; ++zIndex) {
@@ -521,11 +529,19 @@ void DrawGrid(const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMa
 		Vector3 screenStartPos = Transform(clipStartPos, viewportMatrix);
 		Vector3 screenEndPos = Transform(clipEndPos, viewportMatrix);
 
-		Novice::DrawLine(
-			int(screenStartPos.x), int(screenStartPos.y),
-			int(screenEndPos.x), int(screenEndPos.y),
-			0xAAAAAAFF
-		);
+		if(zIndex == 5) {
+			Novice::DrawLine(
+				int(screenStartPos.x), int(screenStartPos.y),
+				int(screenEndPos.x), int(screenEndPos.y),
+				BLACK
+			);
+		} else {
+			Novice::DrawLine(
+				int(screenStartPos.x), int(screenStartPos.y),
+				int(screenEndPos.x), int(screenEndPos.y),
+				0xAAAAAAFF
+			);
+		}
 	}
 
 }
