@@ -30,6 +30,8 @@ Vector3 AddV(const Vector3 a, const Vector3 b);
 /* 減法*/
 Matrix4x4 Subtract(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2);
 
+Vector3 SubtractV(const Vector3 &a, const Vector3 &b);
+
 /* 転置行列*/
 Matrix4x4 Transpose(const Matrix4x4 &m);
 
@@ -107,7 +109,7 @@ void DrawTriangle(const Triangle &triangle, const Matrix4x4 &viewProjectionMatri
 void DrawAABB(const AABB &aabb, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
 
 // ジベェ曲線の描画
-void DrawBezier(const Vector3 &controlPoint0, const Vector3 &controlPoint1, const Vector3 &controlPoint2,const Matrix4x4&viewProjectionMatrix,const Matrix4x4&viewportMatrix,uint32_t color);
+void DrawBezier(const Vector3 &controlPoint0, const Vector3 &controlPoint1, const Vector3 &controlPoint2, const Matrix4x4 &viewProjectionMatrix, const Matrix4x4 &viewportMatrix, uint32_t color);
 
 /*当たり判定
 *********************************************************/
@@ -145,4 +147,14 @@ Vector3 Project(const Vector3 &v1, const Vector3 &v2);
 // 最近接点
 Vector3 ClosestPoint(const Vector3 &point, const Segment &segment);
 
+/*二項演算子
+*********************************************************/
 
+Vector3 operator+(const Vector3 &v1, const Vector3 &v2);
+Vector3 operator-(const Vector3 &v1, const Vector3 &v2);
+Vector3 operator*(const float &s1, const Vector3 &v1);
+Vector3 operator*(const Vector3 &v1, const float &s1);
+Vector3 operator/(const Vector3 &v1, const float &s1);
+Matrix4x4 operator+(const Matrix4x4 &m1, const Matrix4x4 &m2);
+Matrix4x4 operator-(const Matrix4x4 &m1, const Matrix4x4 &m2);
+Matrix4x4 operator*(const Matrix4x4 &m1, const Matrix4x4 &m2);

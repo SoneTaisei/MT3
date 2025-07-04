@@ -27,14 +27,6 @@ struct Vector3 {
 	float y;
 	float z;
 
-	// ベクトルの引き算を定義する
-	Vector3 operator-(const Vector3 &other) const {
-		return Vector3{
-			x - other.x,
-			y - other.y,
-			z - other.z
-		};
-	}
 };
 
 struct Vector2 {
