@@ -113,6 +113,14 @@ Matrix4x4 Subtract(const Matrix4x4 &matrix1, const Matrix4x4 &matrix2) {
 	return result;
 }
 
+Vector3 SubtractV(const Vector3 &a, const Vector3 &b) {
+	return {
+		a.x - b.x,
+		a.y - b.y,
+		a.z - b.z
+	};
+}
+
 /* 転置行列*/
 Matrix4x4 Transpose(const Matrix4x4 &matrix) {
 	Matrix4x4 result;
@@ -859,3 +867,40 @@ Vector3 ClosestPoint(const Vector3 &point, const Segment &segment) {
 
 	return result;
 }
+
+
+/*二項演算子
+*********************************************************/
+
+Vector3 operator+(const Vector3 &v1, const Vector3 &v2) {
+	return AddV(v1, v2);
+}
+
+Vector3 operator-(const Vector3 &v1, const Vector3 &v2) {
+	return SubtractV(v1, v2);
+}
+
+Vector3 operator*(const float &s1, const Vector3 &v1) {
+	return MultiplyV(s1, v1);
+}
+
+Vector3 operator*(const Vector3 &v1, const float &s1) {
+	return s1 * v1;
+}
+
+Vector3 operator/(const Vector3 &v1, const float &s1) {
+	return MultiplyV(1.0f / s1, v1);
+}
+
+Matrix4x4 operator+(const Matrix4x4 &m1, const Matrix4x4 &m2) {
+	return Add(m1, m2);
+}
+
+Matrix4x4 operator-(const Matrix4x4 &m1, const Matrix4x4 &m2) {
+	return Subtract(m1, m2);
+}
+
+Matrix4x4 operator*(const Matrix4x4 &m1, const Matrix4x4 &m2) {
+	return Multiply(m1, m2);
+}
+
