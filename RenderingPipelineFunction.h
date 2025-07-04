@@ -90,6 +90,11 @@ Plane MakePlaneFromPointAndNormal(const Vector3 &point, const Vector3 &normal);
 // 線形補間
 Vector3 Leap(const Vector3 &start, const Vector3 &end, float t);
 
+/*ばねの動き
+*********************************************************/
+
+void ApplySpringForce(Spring &spring, Ball &ball, float deltaTime);
+
 /*描画
 *********************************************************/
 
@@ -151,10 +156,17 @@ Vector3 ClosestPoint(const Vector3 &point, const Segment &segment);
 *********************************************************/
 
 Vector3 operator+(const Vector3 &v1, const Vector3 &v2);
+
 Vector3 operator-(const Vector3 &v1, const Vector3 &v2);
+
 Vector3 operator*(const float &s1, const Vector3 &v1);
+
 Vector3 operator*(const Vector3 &v1, const float &s1);
+
 Vector3 operator/(const Vector3 &v1, const float &s1);
+
 Matrix4x4 operator+(const Matrix4x4 &m1, const Matrix4x4 &m2);
+
 Matrix4x4 operator-(const Matrix4x4 &m1, const Matrix4x4 &m2);
+
 Matrix4x4 operator*(const Matrix4x4 &m1, const Matrix4x4 &m2);
