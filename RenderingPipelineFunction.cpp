@@ -696,6 +696,39 @@ Vector3 Leap(const Vector3 &start, const Vector3 &end, float t) {
 	};
 }
 
+void ApplySpringForce(Spring &spring, Ball &ball, float deltaTime) {
+	Vector3 diff = ball.position - spring.anchor;
+	float length = Length(diff);
+
+	if(length != 0.0f) {
+		Vector3 direction = Normalize(diff);
+
+		// ばねの自然長に沿った理想的な位置
+		Vector3 restPosition = spring.anchor + direction * spring.naturalLength;
+
+		// 変位（今の位置と自然な位置との差）
+		Vector3 displacement = length * (ball.position - restPosition);
+
+		// フックの法則による復元力: F = -k * x
+		Vector3 restoringForce = -spring.stiffness * displacement;
+
+		Vector3 dampingForce = -spring.dampingCoefficient * ball.velocity;
+
+		// 減衰力: F = -d * v
+		Vector3 force = restoringForce + dampingForce;
+
+
+		ball.cceleration = force / ball.mass;
+
+	}
+
+	// 加速度を速度に、速度を位置に反映
+	ball.velocity = ball.velocity + ball.cceleration * deltaTime;
+	ball.position = ball.position + ball.velocity * deltaTime;
+
+
+}
+
 /*当たり判定
 *********************************************************/
 
@@ -903,4 +936,8 @@ Matrix4x4 operator-(const Matrix4x4 &m1, const Matrix4x4 &m2) {
 Matrix4x4 operator*(const Matrix4x4 &m1, const Matrix4x4 &m2) {
 	return Multiply(m1, m2);
 }
+
+
+
+
 

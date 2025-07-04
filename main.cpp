@@ -26,18 +26,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 	Vector3 cameraScale = { 1.0f,1.0f,1.0f };
 
-	Vector3 a = { 0.2f,1.0f,0.0f };
-	Vector3 b = { 2.4f,3.1f,1.2f };
-	Vector3 c = a + b;
-	Vector3 d = a - b;
-	Vector3 e = a * 2.4f;
-	Vector3 rotate = { 0.4f,1.43f,-0.8f };
-	Matrix4x4 rotateXMatrix = MakeRoteXMatrix(rotate.x);
-	Matrix4x4 rotateYMatrix = MakeRoteYMatrix(rotate.y);
-	Matrix4x4 rotateZMatrix = MakeRoteZMatrix(rotate.z);
-	Matrix4x4 rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
+	Spring spring{
+		.anchor{0.0f,0.0f,0.0f},
+		.naturalLength = 1.0f,
+		.stiffness = 100.0f,
+		.dampingCoefficient = 2.0f
+	};
 
-	
+	Ball ball{
+	.position = {1.2f,0.0f,0.0f},
+	.mass = 2.0f,
+	.radius = 0.05f,
+	.color = BLUE
+	};
+
+	bool moveStart = false;
+
+	float deltaTime = 1.0f / 60.0f;
 
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -67,16 +72,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::Begin("Window");
-		ImGui::Text("c:%f,%f,%f", c.x, c.y, c.z);
-		ImGui::Text("d:%f,%f,%f", d.x, d.y, d.z);
-		ImGui::Text("e:%f,%f,%f", e.x, e.y, e.z);
-		ImGui::Text(
-			"matrix:\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n",
-			rotateMatrix.m[0][0], rotateMatrix.m[0][1], rotateMatrix.m[0][2], rotateMatrix.m[0][3],
-			rotateMatrix.m[1][0], rotateMatrix.m[1][1], rotateMatrix.m[1][2], rotateMatrix.m[1][3],
-			rotateMatrix.m[2][0], rotateMatrix.m[2][1], rotateMatrix.m[2][2], rotateMatrix.m[2][3],
-			rotateMatrix.m[3][0], rotateMatrix.m[3][1], rotateMatrix.m[3][2], rotateMatrix.m[3][3]
-			);
+
+		ImGui::Checkbox("Start", &moveStart);
+
 		ImGui::End();
 		/*マウスでカメラ操作
 		*********************************************************/
@@ -106,6 +104,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		cameraTranslate.z = std::clamp(cameraTranslate.z, -6.49f, 50.0f);
 #endif // _DEBUG
 
+		// フレーム数で加算
+
+		if(moveStart) {
+			ApplySpringForce(spring, ball, deltaTime);
+		}
+
+
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -116,6 +122,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
+
+		// 描画用
+		Vector3 start = Transform(Transform(spring.anchor, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(ball.position, viewProjectionMatrix), viewportMatrix);
+
+		// 線を描画する
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+
+		Sphere sphere = {
+			.center = ball.position,
+			.radius = ball.radius,
+			.color = ball.color
+		};
+
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color);
 
 		///
 		/// ↑描画処理ここまで

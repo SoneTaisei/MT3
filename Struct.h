@@ -71,6 +71,22 @@ struct AABB {
 	unsigned int color;//<!色
 };
 
+struct Spring {
+	Vector3 anchor;// 固定された端の位置
+	float naturalLength;// 自然長
+	float stiffness;// ばね定数k
+	float dampingCoefficient;// 減衰係数
+};
+
+struct Ball {
+	Vector3 position;// 位置
+	Vector3 velocity;// 速度
+	Vector3 cceleration;// 加速度
+	float mass;// 質量
+	float radius;// 半径
+	unsigned int color;// 色
+};
+
 static const int kRowHeight = 20;
 static const int kColumnWidth = 70;
 static const int kWindowWidth = 1280;
