@@ -26,19 +26,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 	Vector3 cameraScale = { 1.0f,1.0f,1.0f };
 
-	Spring spring{
-		.anchor{0.0f,0.0f,0.0f},
-		.naturalLength = 1.0f,
-		.stiffness = 100.0f,
-		.dampingCoefficient = 2.0f
-	};
-
 	Ball ball{
-	.position = {1.2f,0.0f,0.0f},
+	.position = {0.8f,0.0f,0.0f},
 	.mass = 2.0f,
 	.radius = 0.05f,
-	.color = BLUE
+	.color = WHITE
 	};
+
+	float radius = 0.8f;
+
+	float angularVelocity = 3.14f;
+	float angle = 0.0f;
 
 	bool moveStart = false;
 
@@ -73,7 +71,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
 		ImGui::Begin("Window");
 
-		ImGui::Checkbox("Start", &moveStart);
+		if(ImGui::Button("start")) {
+			moveStart = true;
+		}
 
 		ImGui::End();
 		/*マウスでカメラ操作
@@ -107,7 +107,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// フレーム数で加算
 
 		if(moveStart) {
-			ApplySpringForce(spring, ball, deltaTime);
+			CalculateCircularPosition(ball.position, {}, radius, angle, angularVelocity, deltaTime);
 		}
 
 
@@ -122,13 +122,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
-
-		// 描画用
-		Vector3 start = Transform(Transform(spring.anchor, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(ball.position, viewProjectionMatrix), viewportMatrix);
-
-		// 線を描画する
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 		Sphere sphere = {
 			.center = ball.position,

@@ -95,6 +95,12 @@ Vector3 Leap(const Vector3 &start, const Vector3 &end, float t);
 
 void ApplySpringForce(Spring &spring, Ball &ball, float deltaTime);
 
+/*円運動の計算
+*********************************************************/
+
+void CalculateCircularPosition(Vector3 &p,const Vector3 c,const float radius,float &angle,const float anglarVelocity,const float deltaTime);
+
+
 /*描画
 *********************************************************/
 

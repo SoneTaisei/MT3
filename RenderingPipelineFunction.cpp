@@ -729,6 +729,18 @@ void ApplySpringForce(Spring &spring, Ball &ball, float deltaTime) {
 
 }
 
+/*円運動の計算
+*********************************************************/
+
+void CalculateCircularPosition(Vector3 &p, const Vector3 c, const float radius, float &angle, const float anglarVelocity, const float deltaTime) {
+	angle += anglarVelocity * deltaTime;
+
+	p.x = c.x + std::cos(angle) * radius;
+	p.y = c.y + std::sin(angle);
+	p.z = c.z;
+
+}
+
 /*当たり判定
 *********************************************************/
 
