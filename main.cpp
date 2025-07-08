@@ -26,24 +26,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 	Vector3 cameraScale = { 1.0f,1.0f,1.0f };
 
-	Ball ball{
-	.position = {0.8f,0.0f,0.0f},
-	.mass = 2.0f,
-	.radius = 0.05f,
-	.color = WHITE
+	Plane plane{
+		.normal{Normalize({-0.2f,0.9f,-0.3f}) },
+		.distance{0.0f}
 	};
 
-	ConicalPendulum conicalPendulum{
-		.anchor{0.0f,1.0f,0.0f},
-		.length{0.8f},
-		.halfApexAngle{0.7f},
-		.angle{0.0f},
-		.angularVelocity{0.0f}
+	Ball ball{
+		.position{0.8f,1.2f,0.3f},
+		.acceleration{0.0f,-9.8f,0.0f},
+		.mass{2.0f},
+		.radius{0.05f},
+		.color{WHITE}
 	};
 
 	bool moveStart = false;
 
 	float deltaTime = 1.0f / 60.0f;
+
+	float e = 0.8f;
 
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -109,18 +109,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// フレーム数で加算
 
-
-		if(moveStart) {
-			CalculateConicalPendulumAngle(conicalPendulum, deltaTime);
+		ball.velocity += ball.acceleration * deltaTime;
+		ball.position += ball.velocity * deltaTime;
+		if(IsCollideSpherePlane(Sphere{ ball.position,ball.radius }, plane)) {
+			Vector3 reflected = Reflect(ball.velocity, plane.normal);
+			Vector3 projectToNormal = Project(reflected, plane.normal);
+			Vector3 movingDirection = reflected - projectToNormal;
+			ball.velocity = projectToNormal * e + movingDirection;
 		}
-
-		// ボールの位置を振り子の先端に付ける
-		float radius = std::sin(conicalPendulum.halfApexAngle) * conicalPendulum.length;
-		float height = std::cos(conicalPendulum.halfApexAngle) * conicalPendulum.length;
-		ball.position.x = conicalPendulum.anchor.x + std::cos(conicalPendulum.angle) * radius;
-		ball.position.y = conicalPendulum.anchor.y - height;
-		ball.position.z = conicalPendulum.anchor.z - std::sin(conicalPendulum.angle) * radius;
-
 
 		///
 		/// ↑更新処理ここまで
@@ -129,16 +125,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-
+		
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		Vector3 start = Transform(Transform(conicalPendulum.anchor, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(ball.position, viewProjectionMatrix), viewportMatrix);
-
-		// 線を描画する
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
-
+		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
+		
 		Sphere sphere = {
 			.center = ball.position,
 			.radius = ball.radius,

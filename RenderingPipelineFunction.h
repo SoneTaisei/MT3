@@ -108,6 +108,11 @@ void CalculatePendulumAngle(Pendulum &pendulum, const float deltaTime);
 // 円錐振り子
 void CalculateConicalPendulumAngle(ConicalPendulum &conicalPendulum, float deltaTime);
 
+/*反射ベクトルを求める
+*********************************************************/
+
+Vector3 Reflect(const Vector3 &input, const Vector3 &normal);
+
 /*描画
 *********************************************************/
 
@@ -168,18 +173,10 @@ Vector3 ClosestPoint(const Vector3 &point, const Segment &segment);
 /*二項演算子
 *********************************************************/
 
-Vector3 operator+(const Vector3 &v1, const Vector3 &v2);
-
-Vector3 operator-(const Vector3 &v1, const Vector3 &v2);
-
-Vector3 operator*(const float &s1, const Vector3 &v1);
-
-Vector3 operator*(const Vector3 &v1, const float &s1);
-
-Vector3 operator/(const Vector3 &v1, const float &s1);
-
 Matrix4x4 operator+(const Matrix4x4 &m1, const Matrix4x4 &m2);
 
 Matrix4x4 operator-(const Matrix4x4 &m1, const Matrix4x4 &m2);
 
 Matrix4x4 operator*(const Matrix4x4 &m1, const Matrix4x4 &m2);
+
+
