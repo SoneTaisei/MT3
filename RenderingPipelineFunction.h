@@ -105,6 +105,9 @@ void CalculateCircularPosition(Vector3 &p,const Vector3 c,const float radius,flo
 
 void CalculatePendulumAngle(Pendulum &pendulum, const float deltaTime);
 
+// 円錐振り子
+void CalculateConicalPendulumAngle(ConicalPendulum &conicalPendulum, float deltaTime);
+
 /*描画
 *********************************************************/
 
