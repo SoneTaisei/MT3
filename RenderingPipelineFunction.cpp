@@ -741,6 +741,13 @@ void CalculateCircularPosition(Vector3 &p, const Vector3 c, const float radius, 
 
 }
 
+void CalculatePendulumAngle(Pendulum &pendulum, const float deltaTime) {
+	pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sin(pendulum.angle);
+	pendulum.angularVelocity += pendulum.angularAcceleration * deltaTime;
+	pendulum.angle += pendulum.angularVelocity * deltaTime;
+
+}
+
 /*当たり判定
 *********************************************************/
 

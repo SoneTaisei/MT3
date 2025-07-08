@@ -100,6 +100,10 @@ void ApplySpringForce(Spring &spring, Ball &ball, float deltaTime);
 
 void CalculateCircularPosition(Vector3 &p,const Vector3 c,const float radius,float &angle,const float anglarVelocity,const float deltaTime);
 
+/*振り子の角度の計算
+*********************************************************/
+
+void CalculatePendulumAngle(Pendulum &pendulum, const float deltaTime);
 
 /*描画
 *********************************************************/

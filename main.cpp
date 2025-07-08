@@ -33,10 +33,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	.color = WHITE
 	};
 
-	float radius = 0.8f;
-
-	float angularVelocity = 3.14f;
-	float angle = 0.0f;
+	Pendulum pendulum = {
+		.anchor{0.0f,1.0f,0.0f},
+		.length{0.8f},
+		.angle{0.7f},
+		.angularVelocity{0.0f},
+		.angularAcceleration{0.0f}
+	};
 
 	bool moveStart = false;
 
@@ -106,10 +109,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// フレーム数で加算
 
+
 		if(moveStart) {
-			CalculateCircularPosition(ball.position, {}, radius, angle, angularVelocity, deltaTime);
+			CalculatePendulumAngle(pendulum, deltaTime);
 		}
 
+		// ボールの位置を振り子の先端に付ける
+		ball.position.x = pendulum.anchor.x + std::sin(pendulum.angle) * pendulum.length;
+		ball.position.y = pendulum.anchor.y - std::cos(pendulum.angle) * pendulum.length;
+		ball.position.z = pendulum.anchor.z;
 
 
 		///
@@ -122,6 +130,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
+
+		Vector3 start = Transform(Transform(pendulum.anchor, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(ball.position, viewProjectionMatrix), viewportMatrix);
+
+		// 線を描画する
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 		Sphere sphere = {
 			.center = ball.position,
