@@ -741,10 +741,20 @@ void CalculateCircularPosition(Vector3 &p, const Vector3 c, const float radius, 
 
 }
 
+/*振り子の角度の計算
+*********************************************************/
+
 void CalculatePendulumAngle(Pendulum &pendulum, const float deltaTime) {
 	pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sin(pendulum.angle);
 	pendulum.angularVelocity += pendulum.angularAcceleration * deltaTime;
 	pendulum.angle += pendulum.angularVelocity * deltaTime;
+
+}
+
+// 円錐振り子
+void CalculateConicalPendulumAngle(ConicalPendulum &conicalPendulum, float deltaTime) {
+	conicalPendulum.angularVelocity = std::sqrt(9.8f / (conicalPendulum.length * std::cos(conicalPendulum.halfApexAngle)));
+	conicalPendulum.angle += conicalPendulum.angularVelocity * deltaTime;
 
 }
 

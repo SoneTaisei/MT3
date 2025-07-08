@@ -33,12 +33,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	.color = WHITE
 	};
 
-	Pendulum pendulum = {
+	ConicalPendulum conicalPendulum{
 		.anchor{0.0f,1.0f,0.0f},
 		.length{0.8f},
-		.angle{0.7f},
-		.angularVelocity{0.0f},
-		.angularAcceleration{0.0f}
+		.halfApexAngle{0.7f},
+		.angle{0.0f},
+		.angularVelocity{0.0f}
 	};
 
 	bool moveStart = false;
@@ -111,13 +111,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		if(moveStart) {
-			CalculatePendulumAngle(pendulum, deltaTime);
+			CalculateConicalPendulumAngle(conicalPendulum, deltaTime);
 		}
 
 		// ボールの位置を振り子の先端に付ける
-		ball.position.x = pendulum.anchor.x + std::sin(pendulum.angle) * pendulum.length;
-		ball.position.y = pendulum.anchor.y - std::cos(pendulum.angle) * pendulum.length;
-		ball.position.z = pendulum.anchor.z;
+		float radius = std::sin(conicalPendulum.halfApexAngle) * conicalPendulum.length;
+		float height = std::cos(conicalPendulum.halfApexAngle) * conicalPendulum.length;
+		ball.position.x = conicalPendulum.anchor.x + std::cos(conicalPendulum.angle) * radius;
+		ball.position.y = conicalPendulum.anchor.y - height;
+		ball.position.z = conicalPendulum.anchor.z - std::sin(conicalPendulum.angle) * radius;
 
 
 		///
@@ -131,7 +133,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッドを表示する
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		Vector3 start = Transform(Transform(pendulum.anchor, viewProjectionMatrix), viewportMatrix);
+		Vector3 start = Transform(Transform(conicalPendulum.anchor, viewProjectionMatrix), viewportMatrix);
 		Vector3 end = Transform(Transform(ball.position, viewProjectionMatrix), viewportMatrix);
 
 		// 線を描画する
