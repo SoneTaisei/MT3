@@ -27,7 +27,23 @@ struct Vector3 {
 	float y;
 	float z;
 
+	// 算術演算子（ベクトル × スカラー）
+	Vector3 operator+(const Vector3 &v) const { return { x + v.x, y + v.y, z + v.z }; }
+	Vector3 operator-(const Vector3 &v) const { return { x - v.x, y - v.y, z - v.z }; }
+	Vector3 operator*(float s) const { return { x * s, y * s, z * s }; }
+	Vector3 operator/(float s) const { return { x / s, y / s, z / s }; }
+
+	// 複合代入
+	Vector3 &operator+=(const Vector3 &v) { x += v.x; y += v.y; z += v.z; return *this; }
+	Vector3 &operator-=(const Vector3 &v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
+	Vector3 &operator*=(float s) { x *= s; y *= s; z *= s; return *this; }
+	Vector3 &operator/=(float s) { x /= s; y /= s; z /= s; return *this; }
 };
+
+// スカラー × ベクトル
+inline Vector3 operator*(float s, const Vector3 &v) {
+	return { v.x * s, v.y * s, v.z * s };
+}
 
 struct Vector2 {
 	float x;
@@ -81,7 +97,7 @@ struct Spring {
 struct Ball {
 	Vector3 position;// 位置
 	Vector3 velocity;// 速度
-	Vector3 cceleration;// 加速度
+	Vector3 acceleration;// 加速度
 	float mass;// 質量
 	float radius;// 半径
 	unsigned int color;// 色

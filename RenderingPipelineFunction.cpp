@@ -718,12 +718,12 @@ void ApplySpringForce(Spring &spring, Ball &ball, float deltaTime) {
 		Vector3 force = restoringForce + dampingForce;
 
 
-		ball.cceleration = force / ball.mass;
+		ball.acceleration = force / ball.mass;
 
 	}
 
 	// 加速度を速度に、速度を位置に反映
-	ball.velocity = ball.velocity + ball.cceleration * deltaTime;
+	ball.velocity = ball.velocity + ball.acceleration * deltaTime;
 	ball.position = ball.position + ball.velocity * deltaTime;
 
 
@@ -756,6 +756,13 @@ void CalculateConicalPendulumAngle(ConicalPendulum &conicalPendulum, float delta
 	conicalPendulum.angularVelocity = std::sqrt(9.8f / (conicalPendulum.length * std::cos(conicalPendulum.halfApexAngle)));
 	conicalPendulum.angle += conicalPendulum.angularVelocity * deltaTime;
 
+}
+
+/*反射ベクトルを求める
+*********************************************************/
+
+Vector3 Reflect(const Vector3 &input, const Vector3 &normal) {
+	return input - 2.0f * Dot(input , normal) * normal;
 }
 
 /*当たり判定
@@ -934,25 +941,7 @@ Vector3 ClosestPoint(const Vector3 &point, const Segment &segment) {
 /*二項演算子
 *********************************************************/
 
-Vector3 operator+(const Vector3 &v1, const Vector3 &v2) {
-	return AddV(v1, v2);
-}
 
-Vector3 operator-(const Vector3 &v1, const Vector3 &v2) {
-	return SubtractV(v1, v2);
-}
-
-Vector3 operator*(const float &s1, const Vector3 &v1) {
-	return MultiplyV(s1, v1);
-}
-
-Vector3 operator*(const Vector3 &v1, const float &s1) {
-	return s1 * v1;
-}
-
-Vector3 operator/(const Vector3 &v1, const float &s1) {
-	return MultiplyV(1.0f / s1, v1);
-}
 
 Matrix4x4 operator+(const Matrix4x4 &m1, const Matrix4x4 &m2) {
 	return Add(m1, m2);
